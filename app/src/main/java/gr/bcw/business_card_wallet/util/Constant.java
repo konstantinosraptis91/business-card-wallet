@@ -6,6 +6,12 @@ package gr.bcw.business_card_wallet.util;
 
 public class Constant {
 
-    public static final String BUSINESS_CARD_WALLET_IDENTITY = "BUSINESS CARD WALLET";
+    public static final int REQUEST_EXIT = 400;
+    public static final int RESULT_OK = 200;
+
+    public static final String SERVER_URL = "http://192.168.1.16:9000/api/";
+
+    // USER
+    public static final String USER = "user";
 
 }

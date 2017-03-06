@@ -25,11 +25,11 @@ public class SplashActivity extends AppCompatActivity {
         String loggedInPassword = PrefUtils.getFromPrefs(SplashActivity.this, PrefUtils.PREFS_LOGIN_PASSWORD_KEY, null);
 
         if (loggedInUserName == null || loggedInPassword == null) {
-            Intent intent = new Intent(this, LoginActivity.class);
+            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
