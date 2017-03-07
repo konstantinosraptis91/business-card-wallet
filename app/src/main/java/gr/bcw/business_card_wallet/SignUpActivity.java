@@ -10,20 +10,24 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.util.Constant;
 import gr.bcw.business_card_wallet.util.PrefUtils;
 import gr.bcw.business_card_wallet.webservice.UserService;
+import retrofit2.Response;
 
 /**
  * Created by konstantinos on 6/3/2017.
@@ -31,7 +35,7 @@ import gr.bcw.business_card_wallet.webservice.UserService;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    public static final String TAG = SignUpActivity.class.getSimpleName();
+    private static final String TAG = SignUpActivity.class.getSimpleName();
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -39,9 +43,9 @@ public class SignUpActivity extends AppCompatActivity {
     private SignUpTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
-    private AutoCompleteTextView mFirstNameView;
-    private AutoCompleteTextView mLastNameView;
+    private EditText mEmailView;
+    private EditText mFirstNameView;
+    private EditText mLastNameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mSignUpFormView;
@@ -52,9 +56,9 @@ public class SignUpActivity extends AppCompatActivity {
         setTitle(R.string.action_sign_up_short);
         setContentView(R.layout.activity_signup);
         // Set up the sign up form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email_signUp);
-        mFirstNameView = (AutoCompleteTextView) findViewById(R.id.firstName_signUp);
-        mLastNameView = (AutoCompleteTextView) findViewById(R.id.lastName_signUp);
+        mEmailView = (EditText) findViewById(R.id.email_signUp);
+        mFirstNameView = (EditText) findViewById(R.id.firstName_signUp);
+        mLastNameView = (EditText) findViewById(R.id.lastName_signUp);
 
         mPasswordView = (EditText) findViewById(R.id.password_signUp);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -123,6 +127,20 @@ public class SignUpActivity extends AppCompatActivity {
             cancel = true;
         }
 
+        // Check for a valid First Name
+        if (TextUtils.isEmpty(firstName)) {
+            mFirstNameView.setError(getString(R.string.error_field_required));
+            focusView = mFirstNameView;
+            cancel = true;
+        }
+
+        // Check for a valid Last Name
+        if (TextUtils.isEmpty(lastName)) {
+            mLastNameView.setError(getString(R.string.error_field_required));
+            focusView = mLastNameView;
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -144,7 +162,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 2;
     }
 
     /**
@@ -189,7 +207,10 @@ public class SignUpActivity extends AppCompatActivity {
         private final String mPassword;
         private final String mFirstName;
         private final String mLastName;
-        private User responseUser = null;
+        private int httpCode;
+        private Response response;
+        private User responseUser;
+        private String message = null;
 
         SignUpTask(String email, String password, String firstName, String lastName) {
             mEmail = email;
@@ -210,30 +231,20 @@ public class SignUpActivity extends AppCompatActivity {
             user.setLastName(mLastName);
 
             try {
-                responseUser = service.saveUser(user).execute().body();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                response = service.saveUser(user).execute();
+                httpCode = response.code();
 
-//            service.saveUser(user).enqueue(new Callback<User>() {
-//                @Override
-//                public void onResponse(Call<User> call, Response<User> response) {
-//                    if (response.isSuccessful()) {
-//                        responseUser = response.body();
-//                    } else {
-//                        try {
-//                            Log.e(TAG, response.errorBody().string());
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<User> call, Throwable t) {
-//                    t.printStackTrace();
-//                }
-//            });
+                switch (httpCode) {
+                    case HttpURLConnection.HTTP_CREATED:
+                        responseUser = (User) response.body();
+                        break;
+                }
+
+            } catch (IOException ex) {
+                if(ex instanceof SocketTimeoutException){
+                    message = "Connection Time out. Please try again.";
+                } else {message = ex.getMessage();}
+            }
 
             return responseUser != null;
         }
@@ -245,21 +256,29 @@ public class SignUpActivity extends AppCompatActivity {
 
             if (success && responseUser != null) {
 
+                Log.i(TAG, "Signing up " + responseUser.toString());
+
                 PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_ID_KEY, String.valueOf(responseUser.getId()));
                 PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_USERNAME_KEY, responseUser.getEmail());
                 PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_PASSWORD_KEY, responseUser.getPassword());
                 PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_FIRST_NAME_KEY, responseUser.getFirstName());
                 PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_LAST_NAME_KEY, responseUser.getLastName());
 
-                setResult(Constant.RESULT_OK, null);
-
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                 startActivity(intent);
                 setResult(Constant.RESULT_OK, null);
                 finish();
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                switch (httpCode) {
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        mEmailView.setError("already exists");
+                        mEmailView.requestFocus();
+                        break;
+                    default:
+                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
+                        break;
+                }
+
             }
         }
 

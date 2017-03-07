@@ -13,7 +13,7 @@ import gr.bcw.business_card_wallet.util.PrefUtils;
 
 public class SplashActivity extends AppCompatActivity {
 
-    public static final String TAG = SplashActivity.class.getSimpleName();
+    private static final String TAG = SplashActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

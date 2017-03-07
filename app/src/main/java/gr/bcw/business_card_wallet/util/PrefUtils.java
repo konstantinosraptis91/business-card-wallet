@@ -47,4 +47,11 @@ public class PrefUtils {
         }
     }
 
+    public static void removeFromPrefs(Context context, String key) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(key);
+        editor.commit();
+    }
+
 }
