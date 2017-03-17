@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment
+        android:id="@+id/preferences_fragment_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="gr.bcw.business_card_wallet.SettingsFragment1"/>
+
+    <View
+        style="@style/DividerHorizontal"
+        />
+
+    <fragment
+        android:id="@+id/preferences_fragment_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="gr.bcw.business_card_wallet.SettingsFragment2"/>
+
+</LinearLayout>

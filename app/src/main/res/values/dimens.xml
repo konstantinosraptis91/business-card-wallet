@@ -2,4 +2,14 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- level 0 -->
+    <dimen name="activity_level_0_margin">10dp</dimen>
+
+    <!-- business card -->
+    <dimen name="divider_margin">50dp</dimen>
+
+    <!-- button margin -->
+    <dimen name="logout_margin">25dp</dimen>
+
 </resources>

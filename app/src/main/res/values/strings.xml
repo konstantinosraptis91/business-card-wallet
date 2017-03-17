@@ -8,15 +8,36 @@
     <string name="prompt_firstName">First Name</string>
     <string name="prompt_lastName">Last Name</string>
     <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">SIGN IN</string>
-    <string name="action_sign_up_short">SIGN UP</string>
+    <string name="action_settings">settings</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_incorrect_email_or_password">Incorrect email or password</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
-    <string name="prompt_logout">LOGOUT</string>
+    <string name="prompt_logout">Logout</string>
 
+    <!-- Actions -->
+    <string name="action_sign_in_short">SIGN IN</string>
+    <string name="action_sign_up_short">SIGN UP</string>
+
+    <!-- Action Bar -->
+    <string name="action_bar_default_title">Title</string>
+    <string name="action_bar_main_title">Wallet</string>
+    <string name="action_bar_login_title">Login</string>
+    <string name="action_bar_sign_up_title">Sign Up</string>
+    <string name="action_bar_settings_title">Settings</string>
+
+    <!-- Business Card -->
+    <string name="text_view_bc_name">John Smith</string>
+    <string name="text_view_bc_email">john@smith.com</string>
+    <string name="text_view_bc_profession">Manager</string>
+    <string name="text_view_bc_website">www.johnsmith.com</string>
+
+    <!-- Preferences -->
+    <string name="pref_auto_login">Auto Login</string>
+    <string name="pref_auto_business_card_public">Public Business Card</string>
+    <string name="pref_category_login_settings">Authentication</string>
+    <string name="pref_category_business_card_settings">Business Card</string>
 
 </resources>

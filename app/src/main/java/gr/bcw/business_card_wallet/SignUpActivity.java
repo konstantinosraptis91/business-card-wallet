@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,7 +54,13 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.action_sign_up_short);
+
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);
+
+        TextView activityTitle = (TextView) findViewById(R.id.custom_action_bar);
+        activityTitle.setText(R.string.action_bar_sign_up_title);
+
         setContentView(R.layout.activity_signup);
         // Set up the sign up form.
         mEmailView = (EditText) findViewById(R.id.email_signUp);
