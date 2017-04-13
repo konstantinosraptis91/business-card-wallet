@@ -25,8 +25,9 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 
 import gr.bcw.business_card_wallet.model.User;
-import gr.bcw.business_card_wallet.util.Constant;
-import gr.bcw.business_card_wallet.util.PrefUtils;
+import gr.bcw.business_card_wallet.storage.UserStorageHandler;
+import gr.bcw.business_card_wallet.util.TokenUtils;
+import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.UserService;
 import retrofit2.Response;
 
@@ -216,7 +217,7 @@ public class SignUpActivity extends AppCompatActivity {
         private final String mLastName;
         private int httpCode;
         private Response response;
-        private User responseUser;
+        private String token = null;
         private String message = null;
 
         SignUpTask(String email, String password, String firstName, String lastName) {
@@ -229,7 +230,7 @@ public class SignUpActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            UserService service = new UserService();
+            UserService service = new UserService(SignUpActivity.this);
 
             User user = new User();
             user.setEmail(mEmail);
@@ -243,7 +244,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 switch (httpCode) {
                     case HttpURLConnection.HTTP_CREATED:
-                        responseUser = (User) response.body();
+                        token = (String) response.body();
                         break;
                 }
 
@@ -253,7 +254,7 @@ public class SignUpActivity extends AppCompatActivity {
                 } else {message = ex.getMessage();}
             }
 
-            return responseUser != null;
+            return token != null;
         }
 
         @Override
@@ -261,19 +262,25 @@ public class SignUpActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
 
-            if (success && responseUser != null) {
+            if (success && token != null) {
 
-                Log.i(TAG, "Signing up " + responseUser.toString());
+                // save token to prefs
+                TokenUtils.saveToken(SignUpActivity.this, token);
+                // save user id to prefs
+                UserUtils.saveID(SignUpActivity.this, 1);
 
-                PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_ID_KEY, String.valueOf(responseUser.getId()));
-                PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_USERNAME_KEY, responseUser.getEmail());
-                PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_PASSWORD_KEY, responseUser.getPassword());
-                PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_FIRST_NAME_KEY, responseUser.getFirstName());
-                PrefUtils.saveToPrefs(SignUpActivity.this, PrefUtils.PREFS_LOGIN_LAST_NAME_KEY, responseUser.getLastName());
+                // save user using real db
+                new UserStorageHandler().saveUser(
+                        SignUpActivity.this,
+                        1,
+                        0,
+                        mFirstName,
+                        mLastName);
 
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                intent.putExtra("id", 1);
                 startActivity(intent);
-                setResult(Constant.RESULT_OK, null);
+                setResult(LoginActivity.RESULT_OK, null);
                 finish();
             } else {
                 switch (httpCode) {
@@ -282,6 +289,7 @@ public class SignUpActivity extends AppCompatActivity {
                         mEmailView.requestFocus();
                         break;
                     default:
+                        Log.i(TAG, message);
                         Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
                         break;
                 }

@@ -23,12 +23,15 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
-import java.util.List;
 
 import gr.bcw.business_card_wallet.model.User;
-import gr.bcw.business_card_wallet.util.Constant;
-import gr.bcw.business_card_wallet.util.PrefUtils;
+import gr.bcw.business_card_wallet.storage.UserStorageHandler;
+import gr.bcw.business_card_wallet.util.TokenUtils;
+import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.UserService;
+import io.realm.Realm;
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -37,6 +40,9 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
+
+    public static final int REQUEST_EXIT = 400;
+    public static final int RESULT_OK = 200;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -116,17 +122,12 @@ public class LoginActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // Check if password empty
         if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
         }
-//        } else if (!isPasswordValid(password)) {
-//            mPasswordView.setError(getString(R.string.error_invalid_password));
-//            focusView = mPasswordView;
-//            cancel = true;
-//        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -153,12 +154,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 2;
     }
 
@@ -200,14 +199,14 @@ public class LoginActivity extends AppCompatActivity {
 
     public void signUp() {
         Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-        startActivityForResult(intent, Constant.REQUEST_EXIT);
+        startActivityForResult(intent, LoginActivity.REQUEST_EXIT);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constant.REQUEST_EXIT) {
-            if (resultCode == Constant.RESULT_OK) {
+        if (requestCode == LoginActivity.REQUEST_EXIT) {
+            if (resultCode == LoginActivity.RESULT_OK) {
                 finish();
             }
         }
@@ -223,7 +222,7 @@ public class LoginActivity extends AppCompatActivity {
         private final String mPassword;
         private int httpCode;
         private Response response;
-        private User responseUser;
+        private String token = null;
         private String message = null;
 
         UserLoginTask(String email, String password) {
@@ -234,27 +233,28 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            UserService service = new UserService();
-            List<User> users;
+            UserService service = new UserService(LoginActivity.this);
 
             try {
-                response = service.getUser(mEmail, mPassword).execute();
-                users = (List<User>) response.body();
+                response = service.authenticate(mEmail, mPassword).execute();
                 httpCode = response.code();
 
                 switch (httpCode) {
                     case HttpURLConnection.HTTP_OK:
-                        responseUser = users.get(0);
+                        token = (String) response.body();
                         break;
                 }
 
             } catch (IOException ex) {
-                if(ex instanceof SocketTimeoutException){
+                ex.printStackTrace();
+                if (ex instanceof SocketTimeoutException) {
                     message = "Connection Time out. Please try again.";
-                } else {message = ex.getMessage();}
+                } else {
+                    message = ex.getMessage();
+                }
             }
 
-            return responseUser != null;
+            return token != null;
         }
 
         @Override
@@ -262,36 +262,74 @@ public class LoginActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
 
-            if (success && responseUser != null) {
+            if (success && token != null) {
 
-                Log.i(TAG, "Logging as " + responseUser.toString());
+                // extract user id
+                String[] results = response.headers().get("Location").split("/");
+                long userId = Long.parseLong(results[results.length - 1]);
 
-                PrefUtils.saveToPrefs(LoginActivity.this, PrefUtils.PREFS_LOGIN_ID_KEY, String.valueOf(responseUser.getId()));
-                PrefUtils.saveToPrefs(LoginActivity.this, PrefUtils.PREFS_LOGIN_USERNAME_KEY, responseUser.getEmail());
-                PrefUtils.saveToPrefs(LoginActivity.this, PrefUtils.PREFS_LOGIN_PASSWORD_KEY, responseUser.getPassword());
-                PrefUtils.saveToPrefs(LoginActivity.this, PrefUtils.PREFS_LOGIN_FIRST_NAME_KEY, responseUser.getFirstName());
-                PrefUtils.saveToPrefs(LoginActivity.this, PrefUtils.PREFS_LOGIN_LAST_NAME_KEY, responseUser.getLastName());
+                // override old token with new one
+                TokenUtils.saveToken(LoginActivity.this, token);
+                // override id (to avoid any server side changes conflicts)
+                UserUtils.saveID(LoginActivity.this, userId);
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                // Check if user info are stored in local realm db. if not store them
+                Realm.init(LoginActivity.this);
+                Realm realm = Realm.getDefaultInstance();
+                User theUser = realm.where(User.class).equalTo("id", userId).findFirst();
+
+                // if user null, make a call to server in order to get user info
+                if (theUser == null) {
+                    UserService service = new UserService(LoginActivity.this);
+
+                    service.findUserById(userId, token).enqueue(new Callback<User>() {
+                        @Override
+                        public void onResponse(Call<User> call, Response<User> response) {
+                            User theResponseUser = response.body();
+                            if (theResponseUser != null) {
+                                new UserStorageHandler().saveUser(
+                                        LoginActivity.this,
+                                        theResponseUser.getId(),
+                                        0, // a call has to be made in order to see if this user got a business card
+                                        theResponseUser.getFirstName(),
+                                        theResponseUser.getLastName());
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.putExtra("id", theResponseUser.getId());
+                                startActivity(intent);
+                                finish();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<User> call, Throwable t) {
+
+                        }
+
+                    });
+
+                } else {
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("id", userId);
+                    startActivity(intent);
+                    finish();
+                }
+
             } else {
                 switch (httpCode) {
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
                         Toast.makeText(LoginActivity.this, "invalid username and/or password", Toast.LENGTH_SHORT).show();
                         break;
                     default:
+                        Log.i(TAG, message);
                         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
         }
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
+
 }
 

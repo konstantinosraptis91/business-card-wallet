@@ -15,17 +15,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="pref_key_business_card_settings"
-        android:title="@string/pref_category_business_card_settings">
-
-        <SwitchPreference
-            android:key="pref_key_public_business_card"
-            android:title="@string/pref_auto_business_card_public"
-            android:summary="Make your business card searchable by others"
-            android:defaultValue="true"
-            />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

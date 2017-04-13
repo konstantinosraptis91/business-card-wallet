@@ -1,38 +1,28 @@
 package gr.bcw.business_card_wallet.model;
 
-import org.hibernate.validator.constraints.Email;
+import java.util.Date;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by konstantinos on 6/3/2017.
  */
 
-public class User {
+public class User extends RealmObject {
 
+    @PrimaryKey
     private long id;
-    private long businessCardId;
-    @NotNull @Size(min = 1, max = 254) @Email
     private String email;
-    @NotNull
-    @Size(min = 1, max = 15)
     private String password;
-    @NotNull @Size(min = 1, max = 30)
     private String firstName;
-    @NotNull @Size(min = 1, max = 30)
     private String lastName;
+    private String token;
+    private Date createdAt;
+    private Date lastUpdated;
 
     public User() {
 
-    }
-
-    public User(long id, String email, String password, String firstName, String lastName) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
     }
 
     public long getId() {
@@ -75,23 +65,41 @@ public class User {
         this.lastName = lastName;
     }
 
-    public long getBusinessCardId() {
-        return businessCardId;
+    public String getToken() {
+        return token;
     }
 
-    public void setBusinessCardId(long businessCardId) {
-        this.businessCardId = businessCardId;
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", businessCardId=" + businessCardId +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", token='" + token + '\'' +
+                ", createdAt=" + createdAt +
+                ", lastUpdated=" + lastUpdated +
                 '}';
     }
 }

@@ -9,7 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import gr.bcw.business_card_wallet.util.PrefUtils;
+import gr.bcw.business_card_wallet.util.TokenUtils;
+import gr.bcw.business_card_wallet.util.UserUtils;
 
 /**
  * Created by konstantinos on 17/3/2017.
@@ -26,11 +27,11 @@ public class SettingsFragment2 extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PrefUtils.removeFromPrefs(getActivity(), PrefUtils.PREFS_LOGIN_ID_KEY);
-                PrefUtils.removeFromPrefs(getActivity(), PrefUtils.PREFS_LOGIN_USERNAME_KEY);
-                PrefUtils.removeFromPrefs(getActivity(), PrefUtils.PREFS_LOGIN_PASSWORD_KEY);
-                PrefUtils.removeFromPrefs(getActivity(), PrefUtils.PREFS_LOGIN_FIRST_NAME_KEY);
-                PrefUtils.removeFromPrefs(getActivity(), PrefUtils.PREFS_LOGIN_LAST_NAME_KEY);
+
+                // delete user id
+                UserUtils.removeID(getActivity());
+                // delete token
+                TokenUtils.removeToken(getActivity());
 
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

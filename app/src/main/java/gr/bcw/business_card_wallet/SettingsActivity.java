@@ -7,8 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import gr.bcw.business_card_wallet.util.Constant;
-
 /**
  * Created by konstantinos on 17/3/2017.
  */
@@ -31,8 +29,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constant.REQUEST_EXIT) {
-            if (resultCode == Constant.RESULT_OK) {
+        if (requestCode == LoginActivity.REQUEST_EXIT) {
+            if (resultCode == LoginActivity.RESULT_OK) {
                 finish();
             }
         }

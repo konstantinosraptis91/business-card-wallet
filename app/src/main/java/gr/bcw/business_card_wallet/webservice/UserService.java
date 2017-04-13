@@ -1,13 +1,12 @@
 package gr.bcw.business_card_wallet.webservice;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.List;
-
 import gr.bcw.business_card_wallet.SplashActivity;
 import gr.bcw.business_card_wallet.model.User;
-import gr.bcw.business_card_wallet.util.Constant;
 import okhttp3.Credentials;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -16,70 +15,61 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
+import retrofit2.http.Path;
 
 /**
  * Created by konstantinos on 6/3/2017.
  */
 
-public class UserService {
+public class UserService extends WebService {
 
     public static final String TAG = SplashActivity.class.getSimpleName();
+
+    protected static final String USER = "user";
+    protected static final String AUTHENTICATE = "authenticate";
 
     private final Retrofit retrofit;
     private final UserAPI service;
 
     private interface UserAPI {
 
-        @POST(Constant.USER)
-        Call<User> saveUser(@Body User user);
+        @POST(USER)
+        Call<String> saveUser(@Body User user);
 
-        @GET(Constant.USER)
-        Call<List<User>> getUser(@Header(Constant.AUTHORIZATION_HEADER_KEY) String credentials,
-                                 @Query("email") String email,
-                                 @Query("firstName") String firstName,
-                                 @Query("lastName") String lastName);
+        @POST(USER + "/" + AUTHENTICATE)
+        Call<String> authenticate(@Header(AUTHORIZATION_HEADER_KEY) String credentials);
+
+        @GET(USER + "/" + "{id}")
+        Call<User> findUserById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
     }
 
-    public UserService() {
+    public UserService(Context context) {
         Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .setLenient()
                 .create();
 
         retrofit = new Retrofit.Builder()
-                .baseUrl(Constant.SERVER_URL)
+                .baseUrl(SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         service = retrofit.create(UserAPI.class);
     }
 
-    public Call<User> saveUser(User user) {
-        Call<User> saveUserCall = service
-                .saveUser(user);
+    public Call<String> saveUser(User user) {
+        Call<String> saveUserCall = service.saveUser(user);
         return saveUserCall;
     }
 
-    public Call<List<User>> getUser(String username, String password) {
-        Call<List<User>> getUserCall = service
-                .getUser(Credentials.basic(username, password), null, null, null);
-        return getUserCall;
+    public Call<String> authenticate(String username, String password) {
+        Call<String> authenticateCall = service.authenticate(Credentials.basic(username, password));
+        return authenticateCall;
     }
 
-    public Call<User> getUserByEmail(String email) {
-        return null;
-    }
-
-    public Call<User> getUserByFirstName(String firstName) {
-        return null;
-    }
-
-    public Call<User> getUserByLastName(String lastName) {
-        return null;
-    }
-
-    public Call<User> getUserByName(String firstName, String lastName) {
-        return null;
+    public Call<User> findUserById(long id, String token) {
+        Call<User> findUserByIdCall = service.findUserById(id, token);
+        return findUserByIdCall;
     }
 
 }
