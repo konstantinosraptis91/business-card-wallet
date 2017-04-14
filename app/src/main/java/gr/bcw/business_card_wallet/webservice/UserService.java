@@ -15,6 +15,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 /**
@@ -41,6 +42,9 @@ public class UserService extends WebService {
 
         @GET(USER + "/" + "{id}")
         Call<User> findUserById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
+        @PUT(USER + "/" + "{id}")
+        Call<Void> updateUser(@Path("id") long id, @Body User user, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
     }
 
@@ -70,6 +74,11 @@ public class UserService extends WebService {
     public Call<User> findUserById(long id, String token) {
         Call<User> findUserByIdCall = service.findUserById(id, token);
         return findUserByIdCall;
+    }
+
+    public Call<Void> updateUser(long id, User user, String token) {
+        Call<Void> updateUserCall = service.updateUser(id, user, token);
+        return updateUserCall;
     }
 
 }

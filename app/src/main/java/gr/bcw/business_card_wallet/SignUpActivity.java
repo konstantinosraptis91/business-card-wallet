@@ -164,12 +164,10 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 2;
     }
 
@@ -216,7 +214,7 @@ public class SignUpActivity extends AppCompatActivity {
         private final String mFirstName;
         private final String mLastName;
         private int httpCode;
-        private Response response;
+        private Response response = null;
         private String token = null;
         private String message = null;
 
@@ -251,7 +249,9 @@ public class SignUpActivity extends AppCompatActivity {
             } catch (IOException ex) {
                 if(ex instanceof SocketTimeoutException){
                     message = "Connection Time out. Please try again.";
-                } else {message = ex.getMessage();}
+                } else {
+                    message = ex.getMessage();
+                }
             }
 
             return token != null;
@@ -264,21 +264,24 @@ public class SignUpActivity extends AppCompatActivity {
 
             if (success && token != null) {
 
+                // extract user id
+                String[] results = response.headers().get("Location").split("/");
+                long userId = Long.parseLong(results[results.length - 1]);
+
                 // save token to prefs
                 TokenUtils.saveToken(SignUpActivity.this, token);
                 // save user id to prefs
-                UserUtils.saveID(SignUpActivity.this, 1);
+                UserUtils.saveID(SignUpActivity.this, userId);
 
                 // save user using real db
                 new UserStorageHandler().saveUser(
                         SignUpActivity.this,
-                        1,
-                        0,
+                        userId,
                         mFirstName,
                         mLastName);
 
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                intent.putExtra("id", 1);
+                intent.putExtra("id", userId);
                 startActivity(intent);
                 setResult(LoginActivity.RESULT_OK, null);
                 finish();

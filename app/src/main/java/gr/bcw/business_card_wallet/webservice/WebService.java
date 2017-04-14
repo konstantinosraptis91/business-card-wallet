@@ -8,6 +8,6 @@ public abstract class WebService {
 
     public static final String AUTHORIZATION_HEADER_KEY = "Authorization";
     // public static final String SERVER_URL = "http://192.168.1.16:9000/api/";
-    public static final String SERVER_URL = "http://192.168.1.3:8080/api/";
+    public static final String SERVER_URL = "http://192.168.1.13:8080/api/";
 
 }

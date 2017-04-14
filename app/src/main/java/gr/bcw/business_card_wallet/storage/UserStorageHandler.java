@@ -12,7 +12,7 @@ import io.realm.Realm;
 
 public class UserStorageHandler {
 
-    public synchronized void saveUser(Context context, long id, long businessCardId, String firstName, String lastName) {
+    public synchronized void saveUser(Context context, long id, String firstName, String lastName) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();

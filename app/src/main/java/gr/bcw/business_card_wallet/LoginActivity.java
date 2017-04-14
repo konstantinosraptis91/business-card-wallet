@@ -290,7 +290,6 @@ public class LoginActivity extends AppCompatActivity {
                                 new UserStorageHandler().saveUser(
                                         LoginActivity.this,
                                         theResponseUser.getId(),
-                                        0, // a call has to be made in order to see if this user got a business card
                                         theResponseUser.getFirstName(),
                                         theResponseUser.getLastName());
 
