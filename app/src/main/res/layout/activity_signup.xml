@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="gr.bcw.business_card_wallet.SignUpActivity">
 
-    <!-- Login progress -->
+    <!-- Sign Up progress -->
     <ProgressBar
         android:id="@+id/signUp_progress"
         style="?android:attr/progressBarStyleLarge"

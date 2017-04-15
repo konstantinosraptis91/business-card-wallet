@@ -20,19 +20,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
-import gr.bcw.business_card_wallet.webservice.UserService;
+import gr.bcw.business_card_wallet.webservice.UserWebService;
+import gr.bcw.business_card_wallet.webservice.UserWebServiceImpl;
+import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import io.realm.Realm;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A login screen that offers login via email/password.
@@ -149,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            mAuthTask.execute(new UserWebServiceImpl());
         }
     }
 
@@ -216,116 +211,121 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private class UserLoginTask extends AsyncTask<UserWebService, Void, User> {
 
-        private final String mEmail;
-        private final String mPassword;
-        private int httpCode;
-        private Response response;
-        private String token = null;
-        private String message = null;
+        private final String email;
+        private final String password;
+        private String message = "";
 
         UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+            this.email = email;
+            this.password = password;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected User doInBackground(UserWebService... params) {
 
-            UserService service = new UserService(LoginActivity.this);
+            UserWebService service = params[0];
+            User theUser = null;
 
             try {
-                response = service.authenticate(mEmail, mPassword).execute();
-                httpCode = response.code();
-
-                switch (httpCode) {
-                    case HttpURLConnection.HTTP_OK:
-                        token = (String) response.body();
-                        break;
-                }
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                if (ex instanceof SocketTimeoutException) {
-                    message = "Connection Time out. Please try again.";
-                } else {
-                    message = ex.getMessage();
-                }
+                theUser =  service.authenticate(email, password);
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
             }
 
-            return token != null;
+            return theUser;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final User theUser) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success && token != null) {
-
-                // extract user id
-                String[] results = response.headers().get("Location").split("/");
-                long userId = Long.parseLong(results[results.length - 1]);
+            if (theUser != null) {
 
                 // override old token with new one
-                TokenUtils.saveToken(LoginActivity.this, token);
+                TokenUtils.saveToken(LoginActivity.this, theUser.getToken());
                 // override id (to avoid any server side changes conflicts)
-                UserUtils.saveID(LoginActivity.this, userId);
+                UserUtils.saveID(LoginActivity.this, theUser.getId());
 
                 // Check if user info are stored in local realm db. if not store them
                 Realm.init(LoginActivity.this);
                 Realm realm = Realm.getDefaultInstance();
-                User theUser = realm.where(User.class).equalTo("id", userId).findFirst();
+                User dbUser = realm.where(User.class).equalTo("id", theUser.getId()).findFirst();
 
-                // if user null, make a call to server in order to get user info
-                if (theUser == null) {
-                    UserService service = new UserService(LoginActivity.this);
-
-                    service.findUserById(userId, token).enqueue(new Callback<User>() {
-                        @Override
-                        public void onResponse(Call<User> call, Response<User> response) {
-                            User theResponseUser = response.body();
-                            if (theResponseUser != null) {
-                                new UserStorageHandler().saveUser(
-                                        LoginActivity.this,
-                                        theResponseUser.getId(),
-                                        theResponseUser.getFirstName(),
-                                        theResponseUser.getLastName());
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.putExtra("id", theResponseUser.getId());
-                                startActivity(intent);
-                                finish();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<User> call, Throwable t) {
-
-                        }
-
-                    });
-
+                // if database user null, make a call to server in order to get user info
+                if (dbUser == null) {
+                    FindUserByIdTask findUserByIdTask = new FindUserByIdTask(theUser.getId(), theUser.getToken());
+                    findUserByIdTask.execute(new UserWebServiceImpl());
                 } else {
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("id", userId);
+                    // dbUser id will be the same with user id here
+                    intent.putExtra("id", dbUser.getId());
                     startActivity(intent);
                     finish();
                 }
 
             } else {
-                switch (httpCode) {
-                    case HttpURLConnection.HTTP_UNAUTHORIZED:
-                        Toast.makeText(LoginActivity.this, "invalid username and/or password", Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Log.i(TAG, message);
-                        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
-                        break;
-                }
+                Log.d(TAG, message);
+                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
             }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
+        }
+
+    }
+
+    private class FindUserByIdTask extends AsyncTask<UserWebService, Void, User> {
+
+        private String token;
+        private long id;
+        private String message = "";
+
+        public FindUserByIdTask(long id, String token) {
+            this.id = id;
+            this.token = token;
+        }
+
+        @Override
+        protected User doInBackground(UserWebService... params) {
+            UserWebService service = params[0];
+            User theUser = null;
+
+            try {
+                theUser = service.findUserById(id, token);
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
+            }
+
+            return theUser;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+
+            if (user != null) {
+                // save user using realm db
+                new UserStorageHandler().saveUser(LoginActivity.this, user.getId(), user.getFirstName(), user.getLastName());
+
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra("id", user.getId());
+                startActivity(intent);
+                finish();
+            } else {
+                Log.d(TAG, message);
+            }
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
         }
 
     }

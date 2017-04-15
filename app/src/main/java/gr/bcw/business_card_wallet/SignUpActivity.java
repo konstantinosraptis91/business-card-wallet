@@ -18,18 +18,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
 
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
-import gr.bcw.business_card_wallet.webservice.UserService;
-import retrofit2.Response;
+import gr.bcw.business_card_wallet.webservice.UserWebService;
+import gr.bcw.business_card_wallet.webservice.UserWebServiceImpl;
+import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 
 /**
  * Created by konstantinos on 6/3/2017.
@@ -158,7 +154,7 @@ public class SignUpActivity extends AppCompatActivity {
             // perform the user sign up attempt.
             showProgress(true);
             mAuthTask = new SignUpActivity.SignUpTask(email, password, firstName, lastName);
-            mAuthTask.execute((Void) null);
+            mAuthTask.execute(new UserWebServiceImpl());
         }
 
     }
@@ -207,96 +203,64 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    public class SignUpTask extends AsyncTask<Void, Void, Boolean> {
+    private class SignUpTask extends AsyncTask<UserWebService, Void, User> {
 
-        private final String mEmail;
-        private final String mPassword;
-        private final String mFirstName;
-        private final String mLastName;
-        private int httpCode;
-        private Response response = null;
-        private String token = null;
-        private String message = null;
+        private final String email;
+        private final String password;
+        private final String firstName;
+        private final String lastName;
+        private String message = "";
 
         SignUpTask(String email, String password, String firstName, String lastName) {
-            mEmail = email;
-            mPassword = password;
-            mFirstName = firstName;
-            mLastName = lastName;
+            this.email = email;
+            this.password = password;
+            this.firstName = firstName;
+            this.lastName = lastName;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected User doInBackground(UserWebService... params) {
 
-            UserService service = new UserService(SignUpActivity.this);
-
-            User user = new User();
-            user.setEmail(mEmail);
-            user.setPassword(mPassword);
-            user.setFirstName(mFirstName);
-            user.setLastName(mLastName);
+            UserWebService service = params[0];
+            User theUser = null;
 
             try {
-                response = service.saveUser(user).execute();
-                httpCode = response.code();
+                User user = new User();
+                user.setEmail(email);
+                user.setPassword(password);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
 
-                switch (httpCode) {
-                    case HttpURLConnection.HTTP_CREATED:
-                        token = (String) response.body();
-                        break;
-                }
-
-            } catch (IOException ex) {
-                if(ex instanceof SocketTimeoutException){
-                    message = "Connection Time out. Please try again.";
-                } else {
-                    message = ex.getMessage();
-                }
+                theUser =  service.createUser(user);
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
             }
 
-            return token != null;
+            return theUser;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final User theUser) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success && token != null) {
-
-                // extract user id
-                String[] results = response.headers().get("Location").split("/");
-                long userId = Long.parseLong(results[results.length - 1]);
+            if (theUser != null) {
 
                 // save token to prefs
-                TokenUtils.saveToken(SignUpActivity.this, token);
+                TokenUtils.saveToken(SignUpActivity.this, theUser.getToken());
                 // save user id to prefs
-                UserUtils.saveID(SignUpActivity.this, userId);
+                UserUtils.saveID(SignUpActivity.this, theUser.getId());
 
-                // save user using real db
-                new UserStorageHandler().saveUser(
-                        SignUpActivity.this,
-                        userId,
-                        mFirstName,
-                        mLastName);
+                // save user using realm db
+                new UserStorageHandler().saveUser(SignUpActivity.this, theUser.getId(), theUser.getFirstName(), theUser.getLastName());
 
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                intent.putExtra("id", userId);
+                intent.putExtra("id", theUser.getId());
                 startActivity(intent);
                 setResult(LoginActivity.RESULT_OK, null);
                 finish();
             } else {
-                switch (httpCode) {
-                    case HttpURLConnection.HTTP_CONFLICT:
-                        mEmailView.setError("already exists");
-                        mEmailView.requestFocus();
-                        break;
-                    default:
-                        Log.i(TAG, message);
-                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
-                        break;
-                }
-
+                Log.d(TAG, message);
             }
         }
 
