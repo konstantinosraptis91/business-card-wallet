@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <fragment
         android:id="@+id/preferences_fragment_1"
+        class="gr.bcw.business_card_wallet.fragment.SettingsFragmentPrefs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        class="gr.bcw.business_card_wallet.fragment.SettingsFragmentPrefs"/>
+        android:layout_height="wrap_content" />
 
-    <View
-        style="@style/DividerHorizontal"
-        />
+    <View style="@style/DividerHorizontal" />
+
+    <fragment
+        android:id="@+id/fragment_update_user"
+        class="gr.bcw.business_card_wallet.fragment.FragmentUpdateUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <fragment
         android:id="@+id/preferences_fragment_2"
+        class="gr.bcw.business_card_wallet.fragment.SettingsFragmentOptions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        class="gr.bcw.business_card_wallet.fragment.SettingsFragmentOptions"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

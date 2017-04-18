@@ -23,8 +23,6 @@ public class AddedBusinessCardsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_added_business_cards, container, false);
         ListView listView = (ListView) view.findViewById(R.id.addedBusinessCardsListView);
 
-
-
         // Inflate layout for this fragment
         return view;
     }

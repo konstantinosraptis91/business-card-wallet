@@ -5,6 +5,7 @@
     <string name="prompt_login">LOGIN</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_password_again">Password (Again)</string>
     <string name="prompt_firstName">First Name</string>
     <string name="prompt_lastName">Last Name</string>
     <string name="action_sign_in">Sign in or register</string>
@@ -15,7 +16,7 @@
     <string name="error_incorrect_email_or_password">Incorrect email or password</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
-    <string name="prompt_logout">Logout</string>
+    <string name="error_passwords_not_match">Passwords Not Match</string>
 
     <!-- Actions -->
     <string name="action_sign_in_short">SIGN IN</string>
@@ -27,6 +28,7 @@
     <string name="action_bar_login_title">Login</string>
     <string name="action_bar_sign_up_title">Sign Up</string>
     <string name="action_bar_settings_title">Settings</string>
+    <string name="action_bar_update_user_title">Update User</string>
 
     <!-- Business Card -->
     <string name="text_view_bc_name">John Smith</string>
@@ -39,5 +41,16 @@
     <string name="pref_auto_business_card_public">Public Business Card</string>
     <string name="pref_category_login_settings">Authentication</string>
     <string name="pref_category_business_card_settings">Business Card</string>
+
+    <!-- Settings -->
+    <string name="option_logout">Logout</string>
+    <string name="option_update_user">Update User</string>
+    <string name="option_user_related_editText_text">Account Management</string>
+
+    <!-- Default Button Values -->
+    <string name="button_action_text">Button Action</string>
+
+    <!-- Button Values -->
+    <string name="button_action_update_user">Save</string>
 
 </resources>

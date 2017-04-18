@@ -1,5 +1,7 @@
 package gr.bcw.business_card_wallet;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final String TAG = SettingsActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +26,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         TextView activityTitle = (TextView) findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_settings_title);
+
+        // showHideFragment(getFragmentManager().findFragmentById(R.id.fragment_update_user));
 
         setContentView(R.layout.activity_settings);
     }
@@ -34,6 +40,22 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    public void showHideFragment(final Fragment fragment){
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.setCustomAnimations(android.R.animator.fade_in,
+                android.R.animator.fade_out);
+
+        if (fragment != null) {
+            if (fragment.isHidden()) {
+                ft.show(fragment);
+            } else {
+                ft.hide(fragment);
+            }
+        }
+        ft.commit();
     }
 
 }

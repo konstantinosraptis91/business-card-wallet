@@ -12,7 +12,9 @@ import io.realm.Realm;
 
 public class UserStorageHandler {
 
-    public synchronized void saveUser(Context context, long id, String firstName, String lastName) {
+    private static final String TAG = UserStorageHandler.class.getSimpleName();
+
+    public static synchronized void saveUser(Context context, long id, String firstName, String lastName) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -22,10 +24,24 @@ public class UserStorageHandler {
         realm.commitTransaction();
     }
 
-    public synchronized @Nullable User findUserById(Context context, long id) {
+    public static synchronized @Nullable User findUserById(Context context, long id) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         return realm.where(User.class).equalTo("id", id).findFirst();
+    }
+
+    public static synchronized void updateUser(Context context, long id, String firstName, String lastName) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+
+        User theUser = new User();
+        theUser.setId(id);
+        theUser.setFirstName(firstName);
+        theUser.setLastName(lastName);
+
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(theUser);
+        realm.commitTransaction();
     }
 
 }

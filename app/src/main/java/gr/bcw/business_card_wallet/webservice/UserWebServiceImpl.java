@@ -49,8 +49,8 @@ public class UserWebServiceImpl implements UserWebService {
     @Override
     public User createUser(@NotNull final User user) throws WebServiceException {
 
-        User theUser = null;
-        String message = "Unknown Message";
+        User theUser;
+        String message;
         Call<String> createUserCall = ServiceGenerator.createService(UserAPI.class).createUser(user);
 
 
@@ -63,6 +63,7 @@ public class UserWebServiceImpl implements UserWebService {
                 String location = response.headers().get("Location");
                 long id = extractUserId(location);
 
+                theUser = new User();
                 theUser.setId(id);
                 theUser.setFirstName(user.getFirstName());
                 theUser.setLastName(user.getLastName());
@@ -172,8 +173,45 @@ public class UserWebServiceImpl implements UserWebService {
     }
 
     @Override
-    public boolean updateUserById(long id, User user, String token) {
-        return true;
+    public boolean updateUserById(long id, User user, String token) throws WebServiceException {
+
+        boolean result;
+        String message;
+        Call<Void> updateUserCall = ServiceGenerator.createService(UserAPI.class).updateUser(id, user, token);
+
+        try {
+            Response<Void> response = updateUserCall.execute();
+            int responseCode = response.code();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                result = true;
+            } else {
+
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new WebServiceException("Unauthorized Access");
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        throw new WebServiceException("User does not Exist");
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        // throw new WebServiceException("Server Conflict");
+                        throw new WebServiceException("email not available");
+                    case HttpURLConnection.HTTP_BAD_REQUEST:
+                        throw new WebServiceException("Bad Request");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
+                }
+            }
+
+        } catch (IOException ex) {
+            if (ex instanceof SocketTimeoutException) {
+                message = "Connection Time out. Please try again.";
+            } else {
+                message = ex.getMessage();
+            }
+            throw new WebServiceException(message);
+        }
+
+        return result;
     }
 
     @Override
