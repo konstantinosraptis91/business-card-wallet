@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private static final String TAG = SettingsActivity.class.getSimpleName();
+    public static final String TAG = SettingsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

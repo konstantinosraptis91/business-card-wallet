@@ -79,4 +79,14 @@ public abstract class PrefUtils {
         editor.commit();
     }
 
+    protected static boolean getFromPrefs(Context context, String key, boolean defaultValue) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            return sharedPrefs.getBoolean(key, defaultValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+    }
+
 }

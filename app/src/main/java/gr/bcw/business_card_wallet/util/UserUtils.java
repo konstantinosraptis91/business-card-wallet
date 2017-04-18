@@ -9,7 +9,6 @@ import android.content.Context;
 public class UserUtils extends PrefUtils {
 
     private static final String PREFS_ID_KEY = "_ID_";
-    private static final String PREFS_AUTO_LOGIN_KEY = "_AUTO_LOGIN_";
 
     public enum PrefState {
 
@@ -42,25 +41,6 @@ public class UserUtils extends PrefUtils {
 
     public static void removeID(Context context) {
         PrefUtils.removeFromPrefs(context, PREFS_ID_KEY);
-    }
-
-    // Auto Login
-    public static boolean isAutoLoginExist(Context context) {
-        long autoLogin = PrefUtils.getFromPrefs(context, PREFS_AUTO_LOGIN_KEY, -1);
-        return !(autoLogin == -1);
-    }
-
-    public static void saveAutoLogin(Context context, PrefState autoLogin) {
-        PrefUtils.saveToPrefs(context, PREFS_AUTO_LOGIN_KEY, autoLogin.getState());
-    }
-
-    public static PrefState getAutoLogin(Context context) {
-        long autoLogin = PrefUtils.getFromPrefs(context, PREFS_AUTO_LOGIN_KEY, - 1);
-        return autoLogin == 1 ? PrefState.TRUE : PrefState.FALSE;
-    }
-
-    public static void removeAutoLogin(Context context) {
-        PrefUtils.removeFromPrefs(context, PREFS_AUTO_LOGIN_KEY);
     }
 
 }
