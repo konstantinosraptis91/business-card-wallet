@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/fragment_update_user"
-        class="gr.bcw.business_card_wallet.fragment.FragmentUpdateUser"
+        class="gr.bcw.business_card_wallet.fragment.UpdateUserFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

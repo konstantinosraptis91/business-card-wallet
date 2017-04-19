@@ -27,19 +27,22 @@ import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.UserWebService;
 import gr.bcw.business_card_wallet.webservice.UserWebServiceImpl;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
+import io.realm.Realm;
 
 /**
  * Created by konstantinos on 17/4/2017.
  */
 
-public class FragmentUpdateUser extends Fragment {
+public class UpdateUserFragment extends Fragment {
 
-    private static final String TAG = FragmentUpdateUser.class.getSimpleName();
+    private static final String TAG = UpdateUserFragment.class.getSimpleName();
 
     /**
      * Keep track of the update task to ensure we can cancel it if requested.
      */
     private UpdateUserByIdTask updateTask = null;
+
+    private Realm realm;
 
     // UI references
     private EditText emailView;
@@ -50,6 +53,12 @@ public class FragmentUpdateUser extends Fragment {
     private View progressView;
     private View updateView;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        realm = Realm.getDefaultInstance();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,7 +66,7 @@ public class FragmentUpdateUser extends Fragment {
         view.setVisibility(View.GONE);
 
         // Retrieve current user from realm db
-        final User dbUser = UserStorageHandler.findUserById(getActivity(), UserUtils.getID(getActivity()));
+        final User dbUser = new UserStorageHandler().findUserById(realm, UserUtils.getID(getActivity()));
 
         emailView = (EditText) view.findViewById(R.id.email_editText);
         pass1View = (EditText) view.findViewById(R.id.password_editText_1);
@@ -298,7 +307,7 @@ public class FragmentUpdateUser extends Fragment {
                 Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
 
                 // save new user in realm db
-                UserStorageHandler.updateUser(getActivity(), id, user.getFirstName(), user.getLastName());
+                new UserStorageHandler().updateUser(realm, id, user.getFirstName(), user.getLastName());
 
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -317,4 +326,9 @@ public class FragmentUpdateUser extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        realm.close();
+    }
 }

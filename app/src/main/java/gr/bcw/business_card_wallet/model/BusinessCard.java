@@ -2,26 +2,30 @@ package gr.bcw.business_card_wallet.model;
 
 import java.util.Date;
 
+import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by konstantinos on 26/3/2017.
  */
 
-public class BusinessCard {
+public class BusinessCard extends RealmObject {
 
     @PrimaryKey
     private long id;
-    private long professionId;
-    private long templateId;
     private long userId;
-    private String title;
-    private String description;
+    private long templateId;
+    private long professionId;
+    private long companyId;
+    private String email1;
+    private String email2;
     private String phoneNumber1;
     private String phoneNumber2;
     private String linkedIn;
     private String website;
-    private String email;
+    // universal field (like server) doesn't needed
+    private String address1;
+    private String address2;
     private Date createdAt;
     private Date lastUpdated;
 
@@ -37,12 +41,12 @@ public class BusinessCard {
         this.id = id;
     }
 
-    public long getProfessionId() {
-        return professionId;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setProfessionId(long professionId) {
-        this.professionId = professionId;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getTemplateId() {
@@ -53,28 +57,36 @@ public class BusinessCard {
         this.templateId = templateId;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getProfessionId() {
+        return professionId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setProfessionId(long professionId) {
+        this.professionId = professionId;
     }
 
-    public String getTitle() {
-        return title;
+    public long getCompanyId() {
+        return companyId;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setCompanyId(long companyId) {
+        this.companyId = companyId;
     }
 
-    public String getDescription() {
-        return description;
+    public String getEmail1() {
+        return email1;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setEmail1(String email1) {
+        this.email1 = email1;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public void setEmail2(String email2) {
+        this.email2 = email2;
     }
 
     public String getPhoneNumber1() {
@@ -109,28 +121,56 @@ public class BusinessCard {
         this.website = website;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAddress1() {
+        return address1;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAddress1(String address1) {
+        this.address1 = address1;
+    }
+
+    public String getAddress2() {
+        return address2;
+    }
+
+    public void setAddress2(String address2) {
+        this.address2 = address2;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     @Override
     public String toString() {
         return "BusinessCard{" +
                 "id=" + id +
-                ", professionId=" + professionId +
-                ", templateId=" + templateId +
                 ", userId=" + userId +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
+                ", templateId=" + templateId +
+                ", professionId=" + professionId +
+                ", companyId=" + companyId +
+                ", email1='" + email1 + '\'' +
+                ", email2='" + email2 + '\'' +
                 ", phoneNumber1='" + phoneNumber1 + '\'' +
                 ", phoneNumber2='" + phoneNumber2 + '\'' +
                 ", linkedIn='" + linkedIn + '\'' +
                 ", website='" + website + '\'' +
-                ", email='" + email + '\'' +
+                ", address1='" + address1 + '\'' +
+                ", address2='" + address2 + '\'' +
+                ", createdAt=" + createdAt +
+                ", lastUpdated=" + lastUpdated +
                 '}';
     }
 }

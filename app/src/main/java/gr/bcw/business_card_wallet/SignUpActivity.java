@@ -24,6 +24,7 @@ import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.UserWebService;
 import gr.bcw.business_card_wallet.webservice.UserWebServiceImpl;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
+import io.realm.Realm;
 
 /**
  * Created by konstantinos on 6/3/2017.
@@ -32,6 +33,8 @@ import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 public class SignUpActivity extends AppCompatActivity {
 
     private static final String TAG = SignUpActivity.class.getSimpleName();
+
+    private Realm realm;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -57,6 +60,9 @@ public class SignUpActivity extends AppCompatActivity {
         activityTitle.setText(R.string.action_bar_sign_up_title);
 
         setContentView(R.layout.activity_signup);
+
+        realm = Realm.getDefaultInstance();
+
         // Set up the sign up form.
         mEmailView = (EditText) findViewById(R.id.email_signUp);
         mFirstNameView = (EditText) findViewById(R.id.firstName_signUp);
@@ -249,7 +255,7 @@ public class SignUpActivity extends AppCompatActivity {
                 UserUtils.saveID(SignUpActivity.this, theUser.getId());
 
                 // save user using realm db
-                new UserStorageHandler().saveUser(SignUpActivity.this, theUser.getId(), theUser.getFirstName(), theUser.getLastName());
+                new UserStorageHandler().saveUser(realm, theUser.getId(), theUser.getFirstName(), theUser.getLastName());
 
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                 intent.putExtra("id", theUser.getId());

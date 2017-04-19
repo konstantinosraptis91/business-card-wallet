@@ -1,7 +1,5 @@
 package gr.bcw.business_card_wallet.webservice;
 
-import android.content.Context;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -28,8 +26,6 @@ public class UserWebServiceImpl implements UserWebService {
 
     public static final String TAG = UserWebServiceImpl.class.getSimpleName();
 
-    private Context context;
-
     private interface UserAPI {
 
         @POST(USER)
@@ -47,12 +43,10 @@ public class UserWebServiceImpl implements UserWebService {
     }
 
     @Override
-    public User createUser(@NotNull final User user) throws WebServiceException {
+    public User createUser(@NotNull User user) throws WebServiceException {
 
-        User theUser;
         String message;
         Call<String> createUserCall = ServiceGenerator.createService(UserAPI.class).createUser(user);
-
 
         try {
             Response<String> response = createUserCall.execute();
@@ -63,20 +57,18 @@ public class UserWebServiceImpl implements UserWebService {
                 String location = response.headers().get("Location");
                 long id = extractUserId(location);
 
-                theUser = new User();
-                theUser.setId(id);
-                theUser.setFirstName(user.getFirstName());
-                theUser.setLastName(user.getLastName());
-                theUser.setToken(token);
+                user.setId(id);
+                user.setToken(token);
 
             } else {
 
-                // user with that email already exist
-                if (responseCode == HttpURLConnection.HTTP_CONFLICT) {
-                    throw new WebServiceException("User with email " + user.getEmail() + " already exist");
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        throw new WebServiceException("User with email " + user.getEmail() + " already exist");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
                 }
 
-                throw new WebServiceException("Server returned response code: " + responseCode);
             }
 
         } catch (IOException ex) {
@@ -213,12 +205,6 @@ public class UserWebServiceImpl implements UserWebService {
 
         return result;
     }
-
-    @Override
-    public boolean deleteUserById(long id, String token) {
-        return true;
-    }
-
 
     private long extractUserId(String location) {
         String[] results = location.split("/");

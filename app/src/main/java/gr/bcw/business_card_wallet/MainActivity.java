@@ -17,6 +17,7 @@ import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
+import io.realm.Realm;
 
 /**
  * Created by konstantinos on 5/3/2017.
@@ -25,6 +26,8 @@ import gr.bcw.business_card_wallet.util.UserUtils;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    private Realm realm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         activityTitle.setText(R.string.action_bar_main_title);
 
         setContentView(R.layout.activity_main);
+
+        realm = Realm.getDefaultInstance();
 
         TextView nameTextView = (TextView) findViewById(R.id.info_name_text_view);
         TextView emailTextView = (TextView) findViewById(R.id.info_email_text_view);
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        User theUser = new UserStorageHandler().findUserById(MainActivity.this, id);
+        User theUser = new UserStorageHandler().findUserById(realm, id);
 
         // if users business card id is not 0 hide create business card button
 //        if (theUser.getBusinessCardId() != 0) { // if not 0 means user got a business card
@@ -129,5 +134,11 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 }

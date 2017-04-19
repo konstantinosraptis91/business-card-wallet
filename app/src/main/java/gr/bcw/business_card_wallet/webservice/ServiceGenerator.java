@@ -12,7 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceGenerator {
 
-    private static final String SERVER_URL = "http://192.168.1.3:8080/api/";
+    // private static final String SERVER_URL = "http://192.168.1.3:8080/api/";
+    private static final String SERVER_URL = "http://192.168.1.16:9000/api/";
 
     private static Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm:ss")

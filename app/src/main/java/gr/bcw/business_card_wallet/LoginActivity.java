@@ -39,6 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     public static final int REQUEST_EXIT = 400;
     public static final int RESULT_OK = 200;
 
+    private Realm realm;
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -61,6 +63,9 @@ public class LoginActivity extends AppCompatActivity {
         activityTitle.setText(R.string.action_bar_login_title);
 
         setContentView(R.layout.activity_login);
+
+        realm = Realm.getDefaultInstance();
+
         // Set up the login form.
         mEmailView = (EditText) findViewById(R.id.email_login);
 
@@ -310,7 +315,7 @@ public class LoginActivity extends AppCompatActivity {
 
             if (user != null) {
                 // save user using realm db
-                new UserStorageHandler().saveUser(LoginActivity.this, user.getId(), user.getFirstName(), user.getLastName());
+                new UserStorageHandler().saveUser(realm, user.getId(), user.getFirstName(), user.getLastName());
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("id", user.getId());
