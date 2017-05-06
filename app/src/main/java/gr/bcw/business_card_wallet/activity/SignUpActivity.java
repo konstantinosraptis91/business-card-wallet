@@ -1,4 +1,4 @@
-package gr.bcw.business_card_wallet;
+package gr.bcw.business_card_wallet.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;

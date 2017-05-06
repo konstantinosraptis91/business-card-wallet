@@ -3,8 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Sign Up progress -->
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
     <ListView
-        android:id="@+id/addedBusinessCardsListView"
+        android:id="@+id/businessCardsListView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

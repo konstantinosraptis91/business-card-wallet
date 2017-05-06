@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import gr.bcw.business_card_wallet.LoginActivity;
+import gr.bcw.business_card_wallet.activity.LoginActivity;
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;

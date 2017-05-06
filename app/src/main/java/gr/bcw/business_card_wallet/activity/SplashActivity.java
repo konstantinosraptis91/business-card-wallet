@@ -1,4 +1,4 @@
-package gr.bcw.business_card_wallet;
+package gr.bcw.business_card_wallet.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

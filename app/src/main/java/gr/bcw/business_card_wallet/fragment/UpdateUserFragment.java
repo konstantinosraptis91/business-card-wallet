@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import gr.bcw.business_card_wallet.MainActivity;
+import gr.bcw.business_card_wallet.activity.MainActivity;
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;

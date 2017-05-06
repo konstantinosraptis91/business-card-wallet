@@ -1,18 +1,18 @@
-package gr.bcw.business_card_wallet;
+package gr.bcw.business_card_wallet.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import gr.bcw.business_card_wallet.R;
+import gr.bcw.business_card_wallet.fragment.AddedBusinessCardsFragment;
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
@@ -43,15 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
-        TextView nameTextView = (TextView) findViewById(R.id.info_name_text_view);
-        TextView emailTextView = (TextView) findViewById(R.id.info_email_text_view);
-
-        Button myBusinessCardButton = (Button) findViewById(R.id.myBusinessCardButton);
-        Button addedBusinessCardsButton = (Button) findViewById(R.id.addedBusinessCardsButton);
         final Button addBusinessCardButton = (Button) findViewById(R.id.addBusinessCardButton);
-        Button createBusinessCardButton = (Button) findViewById(R.id.createBusinessCardButton);
-
-        final CardView cardView = (CardView) findViewById(R.id.card_view);
+        final Button createBusinessCardButton = (Button) findViewById(R.id.createBusinessCardButton);
 
         long id = getIntent().getLongExtra("id", -1);
 
@@ -72,47 +65,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        AddedBusinessCardsFragment addedBusinessCardsFragment = (AddedBusinessCardsFragment) getFragmentManager().findFragmentById(R.id.addedBusinessCardsFragment);
+        addedBusinessCardsFragment.attemptGetWallet();
+
         User theUser = new UserStorageHandler().findUserById(realm, id);
-
-        // if users business card id is not 0 hide create business card button
-//        if (theUser.getBusinessCardId() != 0) { // if not 0 means user got a business card
-//            createBusinessCardButton.setVisibility(View.GONE);
-
-            // Set card view visibility
-//            myBusinessCardButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    switch (cardView.getVisibility()) {
-//                        case View.VISIBLE:
-//                            cardView.setVisibility(View.GONE);
-//                            break;
-//                        case View.GONE:
-//                            cardView.setVisibility(View.VISIBLE);
-//                            break;
-//                    }
-//                }
-//            });
-//
-//        } else { // in that case user does not have a business card
-//            cardView.setVisibility(View.GONE);
-//        }
-
-        nameTextView.setText(theUser.getFirstName() + " " + theUser.getLastName());
-
-        // Set add business card to wallet button visibility
-        addedBusinessCardsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (addBusinessCardButton.getVisibility()) {
-                    case View.VISIBLE:
-                        addBusinessCardButton.setVisibility(View.GONE);
-                        break;
-                    case View.GONE:
-                        addBusinessCardButton.setVisibility(View.VISIBLE);
-                        break;
-                }
-            }
-        });
     }
 
     @Override

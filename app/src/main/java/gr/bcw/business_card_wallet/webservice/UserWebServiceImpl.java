@@ -185,7 +185,6 @@ public class UserWebServiceImpl implements UserWebService {
                     case HttpURLConnection.HTTP_NOT_FOUND:
                         throw new WebServiceException("User does not Exist");
                     case HttpURLConnection.HTTP_CONFLICT:
-                        // throw new WebServiceException("Server Conflict");
                         throw new WebServiceException("email not available");
                     case HttpURLConnection.HTTP_BAD_REQUEST:
                         throw new WebServiceException("Bad Request");

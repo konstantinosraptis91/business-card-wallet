@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.SettingsActivity;
+import gr.bcw.business_card_wallet.activity.SettingsActivity;
 
 /**
  * Created by konstantinos on 17/3/2017.
