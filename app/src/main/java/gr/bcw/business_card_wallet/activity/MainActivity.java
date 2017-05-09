@@ -3,16 +3,20 @@ package gr.bcw.business_card_wallet.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.TextView;
 
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.fragment.AddedBusinessCardsFragment;
+import gr.bcw.business_card_wallet.fragment.MyBusinessCardsFragment;
 import gr.bcw.business_card_wallet.model.User;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private Realm realm;
+    private ViewPager viewPager;
+    private BusinessCardPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,9 +48,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         realm = Realm.getDefaultInstance();
-
-        final Button addBusinessCardButton = (Button) findViewById(R.id.addBusinessCardButton);
-        final Button createBusinessCardButton = (Button) findViewById(R.id.createBusinessCardButton);
+        TextView mainInfoView = (TextView) findViewById(R.id.mainInfoTextView);
+        pagerAdapter = new BusinessCardPagerAdapter(getSupportFragmentManager());
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager.setAdapter(pagerAdapter);
 
         long id = getIntent().getLongExtra("id", -1);
 
@@ -65,10 +72,46 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        AddedBusinessCardsFragment addedBusinessCardsFragment = (AddedBusinessCardsFragment) getFragmentManager().findFragmentById(R.id.addedBusinessCardsFragment);
-        addedBusinessCardsFragment.attemptGetWallet();
-
         User theUser = new UserStorageHandler().findUserById(realm, id);
+        mainInfoView.setText(User.printUser(theUser));
+    }
+
+    public static class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {
+
+        public BusinessCardPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+            Fragment fragment;
+
+            switch (position) {
+                case 0:
+                    fragment = new MyBusinessCardsFragment();
+                    break;
+                case 1:
+                    fragment = new AddedBusinessCardsFragment();
+                    break;
+                default:
+                    fragment = null;
+            }
+
+            if (fragment == null) {
+                throw new RuntimeException();
+            }
+
+            Bundle args = new Bundle();
+            args.putInt(AddedBusinessCardsFragment.ARG_OBJECT, position + 1);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 
     @Override

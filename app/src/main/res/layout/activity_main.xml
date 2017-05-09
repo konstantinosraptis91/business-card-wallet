@@ -4,79 +4,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- here goes some personal info -->
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        >
 
         <TextView
-            android:id="@+id/nameTextView"
+            android:id="@+id/mainInfoTextView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="5dp"/>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/myBusinessCardButton"
+    <!-- here goes a view pager -->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/my_business_card_button_4"
-        android:gravity="center" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/createBusinessCardButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/colorDivider"
-        android:text="Create"
-        android:textColor="@color/colorWhite"
-        android:textSize="12sp" />
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <fragment
-            android:id="@+id/myBusinessCardFragment"
-            android:name="gr.bcw.business_card_wallet.fragment.MyBusinessCardsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/addedBusinessCardsButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/added_business_cards_button_4"
-        android:gravity="center" />
-
-    <Button
-        android:id="@+id/addBusinessCardButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/colorDivider"
-        android:text="Add"
-        android:textColor="@color/colorWhite"
-        android:textSize="12sp" />
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <fragment
-            android:id="@+id/addedBusinessCardsFragment"
-            android:name="gr.bcw.business_card_wallet.fragment.AddedBusinessCardsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </FrameLayout>
+    </android.support.v4.view.ViewPager>
 
 </LinearLayout>

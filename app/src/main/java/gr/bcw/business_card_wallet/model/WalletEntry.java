@@ -1,12 +1,10 @@
 package gr.bcw.business_card_wallet.model;
 
-import io.realm.RealmObject;
-
 /**
  * Created by konstantinos on 5/5/2017.
  */
 
-public class WalletEntry extends RealmObject {
+public class WalletEntry {
 
     private long businessCardId;
     private long userId;

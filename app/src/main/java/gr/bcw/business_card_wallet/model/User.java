@@ -89,6 +89,10 @@ public class User extends RealmObject {
         this.lastUpdated = lastUpdated;
     }
 
+    public static String printUser(User user) {
+        return String.format("ID: %d Name: %s %s", user.getId(), user.getFirstName(), user.getLastName());
+    }
+
     @Override
     public String toString() {
         return "User{" +

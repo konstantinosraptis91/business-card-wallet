@@ -3,15 +3,17 @@ package gr.bcw.business_card_wallet.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -35,6 +37,7 @@ import io.realm.Realm;
 public class AddedBusinessCardsFragment extends Fragment {
 
     public static final String TAG = AddedBusinessCardsFragment.class.getSimpleName();
+    public static final String ARG_OBJECT = "object";
 
     private ListView cardListView;
     private BusinessCardAdapter cardAdapter;
@@ -55,17 +58,23 @@ public class AddedBusinessCardsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_business_cards, container, false);
-        cardListView = (ListView) view.findViewById(R.id.businessCardsListView);
+        View rootView = inflater.inflate(R.layout.fragment_business_cards, container, false);
+        cardListView = (ListView) rootView.findViewById(R.id.businessCardsListView);
         cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>());
         cardListView.setAdapter(cardAdapter);
 
-        progressView = view.findViewById(R.id.progress);
-        getWalletView = view.findViewById(R.id.businessCardsListView);
+        progressView = rootView.findViewById(R.id.progress);
+        getWalletView = rootView.findViewById(R.id.businessCardsListView);
 
-        // attemptGetWallet();
+        ImageView tabInfo = (ImageView) rootView.findViewById(R.id.tabInfoImageView);
+        tabInfo.setImageResource(R.drawable.background_added_bc_image_view);
 
-        return view;
+        Button addCardBtn = (Button) rootView.findViewById(R.id.actionBusinessCardButton);
+        addCardBtn.setText("Add");
+
+        attemptGetWallet();
+
+        return rootView;
     }
 
     public void attemptGetWallet() {

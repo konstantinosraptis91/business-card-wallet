@@ -7,16 +7,34 @@
     <ProgressBar
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/tabInfoImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:adjustViewBounds="true"
+        android:layout_below="@+id/progress"/>
+
+    <Button
+        android:id="@+id/actionBusinessCardButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/colorDivider"
+        android:textColor="@color/colorWhite"
+        android:textSize="12sp"
+        android:layout_below="@+id/tabInfoImageView"/>
 
     <ListView
         android:id="@+id/businessCardsListView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/actionBusinessCardButton"/>
 
 </RelativeLayout>
