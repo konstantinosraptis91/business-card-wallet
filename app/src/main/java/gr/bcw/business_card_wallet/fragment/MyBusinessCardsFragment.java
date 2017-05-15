@@ -6,8 +6,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import gr.bcw.business_card_wallet.R;
@@ -24,12 +22,6 @@ public class MyBusinessCardsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_business_cards, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.businessCardsListView);
-
-        ImageView tabInfo = (ImageView) rootView.findViewById(R.id.tabInfoImageView);
-        tabInfo.setImageResource(R.drawable.my_business_card_button_4);
-
-        Button addCardBtn = (Button) rootView.findViewById(R.id.actionBusinessCardButton);
-        addCardBtn.setText("Create");
 
         // Inflate layout for this fragment
         return rootView;

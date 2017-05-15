@@ -1,18 +1,25 @@
 package gr.bcw.business_card_wallet.activity;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.astuetz.PagerSlidingTabStrip;
 
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.fragment.AddedBusinessCardsFragment;
@@ -34,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Realm realm;
     private ViewPager viewPager;
     private BusinessCardPagerAdapter pagerAdapter;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +60,65 @@ public class MainActivity extends AppCompatActivity {
         pagerAdapter = new BusinessCardPagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
+
+        // Give the PagerSlidingTabStrip the ViewPager
+        PagerSlidingTabStrip tabsStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        // Attach the view pager to the tab strip
+        tabsStrip.setViewPager(viewPager);
+
+        LinearLayout view = (LinearLayout) tabsStrip.getChildAt(0);
+        TextView tab1 = (TextView) view.getChildAt(0);
+        TextView tab2 = (TextView) view.getChildAt(1);
+
+        Typeface customFont = Typeface.createFromAsset(getAssets(), "fonts/MyriadPro-Regular.otf");
+        tab1.setTypeface(customFont);
+        tab2.setTypeface(customFont);
+
+        // fab here
+        fab = (FloatingActionButton) findViewById(R.id.fabMainActivity);
+
+        // add listener to view pager (here we control fab icon update)
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                switch (position) {
+                    case 0:
+                        fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_create_white_48dp));
+                        break;
+                    case 1:
+                        fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_add_white_48dp));
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentPage = viewPager.getCurrentItem();
+
+                switch (currentPage) {
+                    case 0: // here fab event when click and MyBusinessCardsFragment is visible (position 0)
+
+                        break;
+                    case 1: // here fab event when click and AddedBusinessCardsFragment is visible (position 1)
+
+                        break;
+                }
+
+            }
+        });
 
         long id = getIntent().getLongExtra("id", -1);
 
@@ -77,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {
+
+        final int PAGE_COUNT = 2;
+        private String tabTitles[] = new String[]{"My Business Cards", "Added Business Cards"};
 
         public BusinessCardPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -109,8 +179,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles[position];
+        }
+
+        @Override
         public int getCount() {
-            return 2;
+            return PAGE_COUNT;
         }
     }
 

@@ -12,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -65,12 +63,6 @@ public class AddedBusinessCardsFragment extends Fragment {
 
         progressView = rootView.findViewById(R.id.progress);
         getWalletView = rootView.findViewById(R.id.businessCardsListView);
-
-        ImageView tabInfo = (ImageView) rootView.findViewById(R.id.tabInfoImageView);
-        tabInfo.setImageResource(R.drawable.background_added_bc_image_view);
-
-        Button addCardBtn = (Button) rootView.findViewById(R.id.actionBusinessCardButton);
-        addCardBtn.setText("Add");
 
         attemptGetWallet();
 

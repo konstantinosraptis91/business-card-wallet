@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <!-- Sign Up progress -->
     <ProgressBar
@@ -11,30 +12,14 @@
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/tabInfoImageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:adjustViewBounds="true"
-        android:layout_below="@+id/progress"/>
-
-    <Button
-        android:id="@+id/actionBusinessCardButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/colorDivider"
-        android:textColor="@color/colorWhite"
-        android:textSize="12sp"
-        android:layout_below="@+id/tabInfoImageView"/>
-
     <ListView
         android:id="@+id/businessCardsListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/actionBusinessCardButton"/>
+        android:layout_below="@+id/progress"
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
 
-</RelativeLayout>
+
+
+</LinearLayout>
