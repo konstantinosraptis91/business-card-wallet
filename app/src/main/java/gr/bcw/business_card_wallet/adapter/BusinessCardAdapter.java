@@ -3,6 +3,8 @@ package gr.bcw.business_card_wallet.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +22,15 @@ import gr.bcw.business_card_wallet.model.BusinessCard;
 
 public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
 
+    public enum CardType {
+        MY_BUSINESS_CARD, ADDED_BUSINESS_CARD
+    }
 
-    public BusinessCardAdapter(@NonNull Context context, List<BusinessCard> cards) {
+    private final CardType type;
+
+    public BusinessCardAdapter(@NonNull Context context, List<BusinessCard> cards, CardType type) {
         super(context, R.layout.row_business_card, cards);
+        this.type = type;
     }
 
     @NonNull
@@ -30,6 +38,17 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater =  LayoutInflater.from(getContext());
         View rowView = inflater.inflate(R.layout.row_business_card, parent, false);
+        CardView cardView = (CardView) rowView.findViewById(R.id.card_view);
+
+        // draw card's background
+        switch (type) {
+            case MY_BUSINESS_CARD:
+                cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorMyBusinessCard));
+                break;
+            case ADDED_BUSINESS_CARD:
+                cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorAddedBusinessCard));
+                break;
+        }
 
         BusinessCard card = getItem(position);
         final TextView fullName = (TextView) rowView.findViewById(R.id.info_name_text_view);

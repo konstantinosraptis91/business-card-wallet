@@ -10,4 +10,8 @@
     <color name="colorDivider">#BDBDBD</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorClouds">#ecf0f1</color>
+
+    <!-- CardView background colors -->
+    <color name="colorMyBusinessCard">#FFEDD3</color>
+    <color name="colorAddedBusinessCard">#9DC3E0</color>
 </resources>

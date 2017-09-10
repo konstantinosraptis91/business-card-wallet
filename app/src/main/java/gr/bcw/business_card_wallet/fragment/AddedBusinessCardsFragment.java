@@ -61,7 +61,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
         View rootView = inflater.inflate(R.layout.fragment_business_cards, container, false);
         cardListView = (ListView) rootView.findViewById(R.id.businessCardsListView);
-        cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>());
+        cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>(), BusinessCardAdapter.CardType.ADDED_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
         progressView = rootView.findViewById(R.id.progress);
