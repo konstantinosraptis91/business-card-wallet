@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ import io.realm.Realm;
  * Created by konstantinos on 5/5/2017.
  */
 
-public class MyBusinessCardsFragment extends Fragment {
+public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = MyBusinessCardsFragment.class.getSimpleName();
 
@@ -44,6 +45,8 @@ public class MyBusinessCardsFragment extends Fragment {
 
     private View progressView;
     private View getBusinessCardsByIdView;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +66,9 @@ public class MyBusinessCardsFragment extends Fragment {
 
         progressView = rootView.findViewById(R.id.progress);
         getBusinessCardsByIdView = rootView.findViewById(R.id.businessCardsListView);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         attemptGetBusinessCardsByUserId();
 
@@ -118,6 +124,13 @@ public class MyBusinessCardsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onRefresh() {
+        cardAdapter.clear();
+        cardAdapter.notifyDataSetChanged();
+        attemptGetBusinessCardsByUserId();
+    }
+
     private class GetBusinessCardsByUserIdTask extends AsyncTask<BusinessCardWebService, Void, List<BusinessCard>> {
 
         private long id;
@@ -147,6 +160,7 @@ public class MyBusinessCardsFragment extends Fragment {
         protected void onPostExecute(List<BusinessCard> cardList) {
             getBusinessCardsByUserIdTask = null;
             showProgress(false);
+            mSwipeRefreshLayout.setRefreshing(false);
 
             if (cardList != null) {
                 // user updated successfully

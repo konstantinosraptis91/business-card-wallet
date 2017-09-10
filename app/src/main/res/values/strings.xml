@@ -53,4 +53,7 @@
     <!-- Button Values -->
     <string name="button_action_update_user">Save</string>
 
+    <!-- Unique Tags -->
+    <string name="my_business_card_fragment_tag">myBusinessCardFragmentTag</string>
+
 </resources>
