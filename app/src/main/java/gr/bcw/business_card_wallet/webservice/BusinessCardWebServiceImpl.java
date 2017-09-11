@@ -12,6 +12,7 @@ import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -32,6 +33,9 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
 
         @GET(BUSINESS_CARD + "/" + UserWebService.USER + "/" + "{id}")
         Call<List<BusinessCard>> findByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
+        @DELETE(BUSINESS_CARD + "/" + "{id}")
+        Call<Void> deleteBusinessCardById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
     }
 
@@ -118,6 +122,44 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
         }
 
         return cards;
+    }
+
+    @Override
+    public void deleteBusinessCardById(long id, String token) throws WebServiceException {
+
+        String message;
+        Call<Void> deleteBusinessCardByIdCall = ServiceGenerator.createService(BusinessCardAPI.class).deleteBusinessCardById(id, token);
+
+        try {
+            Response<Void> response = deleteBusinessCardByIdCall.execute();
+            int responseCode = response.code();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                message = "Deleted";
+            } else {
+
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new WebServiceException("Unauthorized Access");
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        throw new WebServiceException("Business Card does not Exist");
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        throw new WebServiceException("Server Conflict");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
+                }
+
+            }
+
+        } catch (IOException ex) {
+            if (ex instanceof SocketTimeoutException) {
+                message = "Connection Time out. Please try again.";
+            } else {
+                message = ex.getMessage();
+            }
+            throw new WebServiceException(message);
+        }
+
     }
 
     private long extractBusinessCardId(String location) {

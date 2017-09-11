@@ -18,6 +18,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by konstantinos on 5/5/2017.
@@ -36,7 +37,7 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
         Call<List<BusinessCard>> findAllBusinessCardsByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
         @DELETE(WALLET_ENTRY)
-        Call<Void> deleteWalletEntry(@Body WalletEntry entry, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+        Call<Void> deleteWalletEntry(@Query("userId") long userId, @Query("businessCardId") long businessCardId, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
     }
 
@@ -89,6 +90,39 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
 
     @Override
     public void deleteWalletEntry(WalletEntry entry, String token) throws WebServiceException {
+
+        String message;
+        Call<Void> deleteWalletEntryCall = ServiceGenerator.createService(WalletEntryWebServiceImpl.WalletEntryAPI.class).deleteWalletEntry(entry.getUserId(), entry.getBusinessCardId(), token);
+
+        try {
+            Response<Void> response = deleteWalletEntryCall.execute();
+            int responseCode = response.code();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                message = "Deleted";
+            } else {
+
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new WebServiceException("Unauthorized Access");
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        throw new WebServiceException("Wallet Entry does not Exist");
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        throw new WebServiceException("Server Conflict");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
+                }
+
+            }
+
+        } catch (IOException ex) {
+            if (ex instanceof SocketTimeoutException) {
+                message = "Connection Time out. Please try again.";
+            } else {
+                message = ex.getMessage();
+            }
+            throw new WebServiceException(message);
+        }
 
     }
 }

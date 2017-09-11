@@ -14,4 +14,5 @@
     <!-- CardView background colors -->
     <color name="colorMyBusinessCard">#FFEDD3</color>
     <color name="colorAddedBusinessCard">#9DC3E0</color>
+    <color name="colorDeleteButton">#E74856</color>
 </resources>

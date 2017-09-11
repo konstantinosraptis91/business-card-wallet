@@ -19,4 +19,6 @@ public interface BusinessCardWebService extends WebService {
 
     List<BusinessCard> findByUserId(long id, String token) throws WebServiceException;
 
+    void deleteBusinessCardById(long id, String token) throws WebServiceException;
+
 }
