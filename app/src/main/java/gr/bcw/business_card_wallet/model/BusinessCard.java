@@ -23,7 +23,7 @@ public class BusinessCard extends RealmObject {
     private String phoneNumber2;
     private String linkedIn;
     private String website;
-    // universal field (like server) doesn't needed
+    private boolean universal;
     private String address1;
     private String address2;
     private Date createdAt;
@@ -151,6 +151,14 @@ public class BusinessCard extends RealmObject {
 
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public boolean isUniversal() {
+        return universal;
+    }
+
+    public void setUniversal(boolean universal) {
+        this.universal = universal;
     }
 
     @Override

@@ -12,12 +12,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 
@@ -41,7 +45,9 @@ public class MainActivity extends AppCompatActivity {
     private Realm realm;
     private ViewPager viewPager;
     private BusinessCardPagerAdapter pagerAdapter;
-    private FloatingActionButton fab;
+    private FloatingActionButton fab, fabAdd, fabSearch;
+    private Animation fabOpen, fabClose, rotateForward, rotateBackward;
+    private boolean isFabOpen = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
 
         // fab here
         fab = (FloatingActionButton) findViewById(R.id.fabMainActivity);
+        fabAdd = (FloatingActionButton) findViewById(R.id.fabMainActivityAddBusinessCard);
+        fabSearch = (FloatingActionButton) findViewById(R.id.fabMainActivitySearchBusinessCard);
+
+        // animations for fab here
+        fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open);
+        fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
+
+        rotateForward = AnimationUtils.loadAnimation(this, R.anim.rotate_forward);
+        rotateBackward = AnimationUtils.loadAnimation(this, R.anim.rotate_backward);
 
         // add listener to view pager (here we control fab icon update)
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -89,10 +104,13 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (position) {
                     case 0:
+                        if (isFabOpen) {
+                            animateFab();
+                        }
                         fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_create_white_48dp));
                         break;
                     case 1:
-                        fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_add_white_48dp));
+                        fab.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_bc_card_white_24dp));
                         break;
                 }
             }
@@ -110,13 +128,30 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (currentPage) {
                     case 0: // here fab event when click and MyBusinessCardsFragment is visible (position 0)
-
+                        Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
+                        startActivity(intent);
                         break;
                     case 1: // here fab event when click and AddedBusinessCardsFragment is visible (position 1)
-
+                        animateFab();
                         break;
                 }
 
+            }
+        });
+
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFab();
+                Toast.makeText(MainActivity.this, "Add Business Card by ID", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        fabSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateFab();
+                Toast.makeText(MainActivity.this, "Search for Business Card", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -141,6 +176,27 @@ public class MainActivity extends AppCompatActivity {
 
         User theUser = new UserStorageHandler().findUserById(realm, id);
         mainInfoView.setText(User.printUser(theUser));
+    }
+
+    private void animateFab() {
+
+        Log.i(TAG, "animateFab");
+
+        if (isFabOpen) {
+            fab.startAnimation(rotateBackward);
+            fabAdd.startAnimation(fabClose);
+            fabSearch.startAnimation(fabClose);
+            fabAdd.setClickable(false);
+            fabSearch.setClickable(false);
+            isFabOpen = false;
+        } else {
+            fab.startAnimation(rotateForward);
+            fabAdd.startAnimation(fabOpen);
+            fabSearch.startAnimation(fabOpen);
+            fabAdd.setClickable(true);
+            fabSearch.setClickable(true);
+            isFabOpen = true;
+        }
     }
 
     public static class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {

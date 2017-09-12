@@ -177,6 +177,13 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
             }
         }
 
+        @Override
+        protected void onCancelled() {
+            getBusinessCardsByUserIdTask = null;
+            showProgress(false);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+
     }
 
     @Override

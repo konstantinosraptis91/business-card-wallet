@@ -59,11 +59,13 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         ImageButton deleteBCButton = (ImageButton) rowView.findViewById(R.id.deleteBCButton);
 
         final BusinessCard card = getItem(position);
+        final TextView businessCardId = (TextView) rowView.findViewById(R.id.info_card_id_text_view);
         final TextView fullName = (TextView) rowView.findViewById(R.id.info_name_text_view);
         final TextView email1 = (TextView) rowView.findViewById(R.id.info_email_text_view);
         final TextView website = (TextView) rowView.findViewById(R.id.info_website_text_view);
         final TextView profession = (TextView) rowView.findViewById(R.id.info_profession_text_view);
 
+        businessCardId.setText(getContext().getString(R.string.text_view_bc_id) + " " + card.getId());
         fullName.setText("User ID: " + card.getUserId());
         email1.setText(card.getEmail1());
         website.setText(card.getWebsite());

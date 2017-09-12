@@ -29,7 +29,7 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
     private interface BusinessCardAPI {
 
         @POST(BUSINESS_CARD)
-        Call<Void> createBusinessCard(@Body BusinessCard businessCard);
+        Call<Void> createBusinessCard(@Body BusinessCard businessCard, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
         @GET(BUSINESS_CARD + "/" + UserWebService.USER + "/" + "{id}")
         Call<List<BusinessCard>> findByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
@@ -40,10 +40,10 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
     }
 
     @Override
-    public BusinessCard createBusinessCard(@NotNull BusinessCard businessCard) throws WebServiceException {
+    public BusinessCard createBusinessCard(@NotNull BusinessCard businessCard, String token) throws WebServiceException {
 
         String message;
-        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCard(businessCard);
+        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCard(businessCard, token);
 
         try {
             Response<Void> response = createBusinessCardCall.execute();

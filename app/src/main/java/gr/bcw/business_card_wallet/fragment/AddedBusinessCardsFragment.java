@@ -180,6 +180,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         protected void onCancelled() {
             getWalletTask = null;
             showProgress(false);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

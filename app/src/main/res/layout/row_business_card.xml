@@ -98,6 +98,16 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/info_card_id_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:text="@string/text_view_bc_id"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:textSize="@dimen/card_id_text_size"/>
+
             <ImageButton
                 android:id="@+id/deleteBCButton"
                 android:layout_width="wrap_content"
