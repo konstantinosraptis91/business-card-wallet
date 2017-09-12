@@ -40,7 +40,7 @@
     <string name="text_view_bc_phone_number">Phone Number</string>
     <string name="text_view_bc_address">Address</string>
     <string name="text_view_bc_website_hint">Website</string>
-    <string name="text_view_bc_id">Card ID:</string>
+    <string name="text_view_bc_id">Card ID</string>
 
     <!-- Preferences -->
     <string name="pref_auto_login">Auto Login</string>

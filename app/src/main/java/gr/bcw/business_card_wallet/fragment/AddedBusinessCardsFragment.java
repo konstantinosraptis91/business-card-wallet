@@ -3,6 +3,7 @@ package gr.bcw.business_card_wallet.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -49,6 +54,10 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private LinearLayout addCardByIdLayout;
+    private ImageButton hideButton;
+    private EditText cardIdEditText;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +78,20 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        addCardByIdLayout = (LinearLayout) rootView.findViewById(R.id.add_card_by_id_layout);
+        hideButton = (ImageButton) rootView.findViewById(R.id.hide_button);
+        cardIdEditText = (EditText) rootView.findViewById(R.id.card_id_editText);
+
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHideAddCardByIdLayout();
+                // hide soft keyboard
+                InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        });
 
         attemptGetWallet();
 
@@ -188,6 +211,23 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
     public void onDestroy() {
         super.onDestroy();
         realm.close();
+    }
+
+
+    public void showHideAddCardByIdLayout() {
+
+        int visibility = addCardByIdLayout.getVisibility();
+
+        switch (visibility) {
+            case View.GONE:
+                addCardByIdLayout.setVisibility(View.VISIBLE);
+                break;
+            case View.VISIBLE:
+                addCardByIdLayout.setVisibility(View.GONE);
+                cardIdEditText.setText("");
+                break;
+        }
+
     }
 
 }

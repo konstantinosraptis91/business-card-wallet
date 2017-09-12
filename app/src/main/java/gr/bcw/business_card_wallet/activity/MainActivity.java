@@ -1,5 +1,6 @@
 package gr.bcw.business_card_wallet.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab, fabAdd, fabSearch;
     private Animation fabOpen, fabClose, rotateForward, rotateBackward;
     private boolean isFabOpen = false;
+
+    private Context context;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,7 +146,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 animateFab();
-                Toast.makeText(MainActivity.this, "Add Business Card by ID", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "Add Business Card by ID", Toast.LENGTH_SHORT).show();
+                FragmentManager manager = ((AppCompatActivity) context).getSupportFragmentManager();
+//                MyBusinessCardsFragment fragment = (MyBusinessCardsFragment) manager.findFragmentByTag("1");
+//                fragment.showHideAddCardByIdLayout();
+                for (Fragment f : manager.getFragments()) {
+                    if (f instanceof AddedBusinessCardsFragment) {
+                        ((AddedBusinessCardsFragment) f).showHideAddCardByIdLayout();
+                    }
+                }
             }
         });
 
@@ -176,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
         User theUser = new UserStorageHandler().findUserById(realm, id);
         mainInfoView.setText(User.printUser(theUser));
+        context = MainActivity.this;
     }
 
     private void animateFab() {
@@ -199,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Adapter was static class
     public static class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {
 
         final int PAGE_COUNT = 2;
@@ -216,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     fragment = new MyBusinessCardsFragment();
+//                    FragmentManager manager = ((AppCompatActivity) context).getSupportFragmentManager();
+//                    manager.beginTransaction().add(fragment, "1").commit();
                     break;
                 case 1:
                     fragment = new AddedBusinessCardsFragment();

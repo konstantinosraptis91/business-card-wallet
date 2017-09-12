@@ -13,6 +13,55 @@
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
+
+    <LinearLayout
+        android:id="@+id/add_card_by_id_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="8">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/card_id_text_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="6">
+
+            <EditText
+                android:id="@+id/card_id_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/text_view_bc_id"
+                android:inputType="number"
+                android:maxLines="1"
+                android:textColor="@color/colorPrimaryText" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/add_card_by_id_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/transparent"
+            android:src="@drawable/ic_save_black_24dp"
+            android:tint="@color/colorSecondaryText" />
+
+
+        <ImageButton
+            android:id="@+id/hide_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/transparent"
+            android:src="@drawable/arrow_drop_up" />
+
+    </LinearLayout>
+
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
