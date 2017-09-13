@@ -188,7 +188,7 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
                 // business card deleted successfully
                 BusinessCardAdapter.this.remove(BusinessCardAdapter.this.getItem(position));
             } else {
-                // user didn't updated successfully
+                // business card  didn't deleted successfully
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
         }

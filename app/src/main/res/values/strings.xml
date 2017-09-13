@@ -17,6 +17,7 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="error_passwords_not_match">Passwords Not Match</string>
+    <string name="error_invalid_card_id">Card ID Should be a Decimal Number</string>
 
     <!-- Actions -->
     <string name="action_sign_in_short">SIGN IN</string>

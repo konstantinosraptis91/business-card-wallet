@@ -1,5 +1,7 @@
 package gr.bcw.business_card_wallet.webservice;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -31,7 +33,7 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
     private interface WalletEntryAPI {
 
         @POST(WALLET_ENTRY)
-        Call<Void> saveWalletEntry(@Body WalletEntry entry, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+        Call<BusinessCard> saveWalletEntry(@Body WalletEntry entry, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
         @GET(WALLET_ENTRY + "/" + UserWebService.USER + "/" + "{id}")
         Call<List<BusinessCard>> findAllBusinessCardsByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
@@ -43,7 +45,40 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
 
     @Override
     public BusinessCard saveWalletEntry(WalletEntry entry, String token) throws WebServiceException {
-        return null;
+
+        String message;
+        BusinessCard card;
+        Call<BusinessCard> saveWalletEntryCall = ServiceGenerator.createService(WalletEntryAPI.class).saveWalletEntry(entry, token);
+
+        try {
+            Response<BusinessCard> response = saveWalletEntryCall.execute();
+            int responseCode = response.code();
+
+            if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                card = response.body();
+            } else {
+
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new WebServiceException("Unauthorized Access");
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        throw new WebServiceException("Server Conflict");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
+                }
+
+            }
+
+        } catch (IOException ex) {
+            if (ex instanceof SocketTimeoutException) {
+                message = "Connection Time out. Please try again.";
+            } else {
+                message = ex.getMessage();
+            }
+            throw new WebServiceException(message);
+        }
+
+        return card;
     }
 
     @Override
@@ -125,4 +160,5 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
         }
 
     }
+
 }

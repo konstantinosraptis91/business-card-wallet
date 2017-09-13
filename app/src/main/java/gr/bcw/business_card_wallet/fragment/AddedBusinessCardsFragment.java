@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import java.util.List;
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.adapter.BusinessCardAdapter;
 import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.model.WalletEntry;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.WalletEntryWebService;
@@ -46,6 +48,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
     private ListView cardListView;
     private BusinessCardAdapter cardAdapter;
     private GetWalletTask getWalletTask = null;
+    private SaveWalletEntryTask saveWalletEntryTask = null;
 
     private Realm realm;
 
@@ -56,6 +59,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
     private LinearLayout addCardByIdLayout;
     private ImageButton hideButton;
+    private ImageButton saveCardButton;
     private EditText cardIdEditText;
 
     @Override
@@ -81,6 +85,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
         addCardByIdLayout = (LinearLayout) rootView.findViewById(R.id.add_card_by_id_layout);
         hideButton = (ImageButton) rootView.findViewById(R.id.hide_button);
+        saveCardButton = (ImageButton) rootView.findViewById(R.id.save_card_by_id_button);
         cardIdEditText = (EditText) rootView.findViewById(R.id.card_id_editText);
 
         hideButton.setOnClickListener(new View.OnClickListener() {
@@ -89,13 +94,69 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
                 showHideAddCardByIdLayout();
                 // hide soft keyboard
                 InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                inputManager.hideSoftInputFromWindow(hideButton.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        });
+
+        saveCardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attemptSaveWalletEntry();
             }
         });
 
         attemptGetWallet();
 
         return rootView;
+    }
+
+    private boolean isCardIdValid(String cardId) {
+        try {
+            Long.parseLong(cardId);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }
+
+    public void attemptSaveWalletEntry() {
+        if (saveWalletEntryTask != null) {
+            return;
+        }
+
+        // Reset errors.
+        cardIdEditText.setError(null);
+
+        // Store values
+        String cardId = cardIdEditText.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // check for a valid card id (should be a decimal number)
+        if (!TextUtils.isEmpty(cardId) && !isCardIdValid(cardId)) {
+            cardIdEditText.setError(getString(R.string.error_invalid_card_id));
+            focusView = cardIdEditText;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+
+            long id = UserUtils.getID(getActivity());
+            String token = TokenUtils.getToken(getActivity());
+
+            // entry conf here
+            WalletEntry entry = new WalletEntry();
+            entry.setUserId(id);
+            entry.setBusinessCardId(Long.parseLong(cardId));
+
+            showProgress(true);
+            saveWalletEntryTask = new SaveWalletEntryTask(entry, token);
+            saveWalletEntryTask.execute(new WalletEntryWebServiceImpl());
+        }
+
     }
 
     public void attemptGetWallet() {
@@ -151,6 +212,62 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         cardAdapter.clear();
         cardAdapter.notifyDataSetChanged();
         attemptGetWallet();
+    }
+
+    private class SaveWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, BusinessCard> {
+
+        private String token;
+        private WalletEntry entry;
+        private String message = "";
+
+        public SaveWalletEntryTask(WalletEntry entry, String token) {
+            this.token = token;
+            this.entry = entry;
+        }
+
+        @Override
+        protected BusinessCard doInBackground(WalletEntryWebService... params) {
+            WalletEntryWebService service = params[0];
+            BusinessCard card = null;
+
+            try {
+                card = service.saveWalletEntry(entry, token);
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
+            }
+
+            return card;
+        }
+
+        @Override
+        protected void onPostExecute(BusinessCard card) {
+            saveWalletEntryTask = null;
+            showProgress(false);
+
+            if (card != null) {
+                // wallet entry saved successfully
+                Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "wallet entry saved successfully");
+                Log.d(TAG, card.toString());
+
+                cardIdEditText.setText("");
+
+                cardAdapter.add(card);
+                // not sure if needed here
+                cardAdapter.notifyDataSetChanged();
+            } else {
+                // wallet entry wasn't saved successfully
+                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            saveWalletEntryTask = null;
+            showProgress(false);
+        }
+
     }
 
     private class GetWalletTask extends AsyncTask<WalletEntryWebService, Void, List<BusinessCard>> {
