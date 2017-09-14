@@ -8,6 +8,7 @@
     <string name="prompt_password_again">Password (Again)</string>
     <string name="prompt_firstName">First Name</string>
     <string name="prompt_lastName">Last Name</string>
+    <string name="prompt_user_name">User Full Name</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_settings">settings</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -18,6 +19,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="error_passwords_not_match">Passwords Not Match</string>
     <string name="error_invalid_card_id">Card ID Should be a Decimal Number</string>
+    <string name="error_invalid_name">Full Name Needed</string>
 
     <!-- Actions -->
     <string name="action_sign_in_short">SIGN IN</string>
@@ -31,6 +33,7 @@
     <string name="action_bar_settings_title">Settings</string>
     <string name="action_bar_update_user_title">Update User</string>
     <string name="action_bar_create_business_card_title">Create Business Card</string>
+    <string name="action_bar_search_business_card_title">Search Business Card</string>
 
     <!-- Business Card -->
     <string name="text_view_bc_name">John Smith</string>
@@ -58,8 +61,8 @@
     <string name="button_action_text">Button Action</string>
 
     <!-- Button Values -->
-    <string name="button_action_update_user">Save</string>
-    <string name="button_action_create_business_card">Create</string>
+    <string name="button_action_save">Save</string>
+    <string name="button_action_create">Create</string>
 
     <!-- Unique Tags -->
     <string name="my_business_card_fragment_tag">myBusinessCardFragmentTag</string>

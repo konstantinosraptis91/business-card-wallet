@@ -38,7 +38,7 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
     private Context context;
 
     public enum CardType {
-        MY_BUSINESS_CARD, ADDED_BUSINESS_CARD
+        MY_BUSINESS_CARD, ADDED_BUSINESS_CARD, SEARCH_BUSINESS_CARD
     }
 
     private final CardType type;
@@ -105,6 +105,8 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
                         deleteEntryTask.execute(new WalletEntryWebServiceImpl());
                     }
                 });
+                break;
+            case SEARCH_BUSINESS_CARD:
                 break;
         }
 

@@ -17,6 +17,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by konstantinos on 18/4/2017.
@@ -33,6 +34,9 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
 
         @GET(BUSINESS_CARD + "/" + UserWebService.USER + "/" + "{id}")
         Call<List<BusinessCard>> findByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
+        @GET(BUSINESS_CARD + "/" + UserWebService.USER)
+        Call<List<BusinessCard>> findByUserName(@Query("firstname") String firstName, @Query("lastname") String lastName);
 
         @DELETE(BUSINESS_CARD + "/" + "{id}")
         Call<Void> deleteBusinessCardById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
@@ -87,10 +91,10 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
 
         String message;
         List<BusinessCard> cards;
-        Call<List<BusinessCard>> walletCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserId(id, token);
+        Call<List<BusinessCard>> findByUserIdCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserId(id, token);
 
         try {
-            Response<List<BusinessCard>> response = walletCall.execute();
+            Response<List<BusinessCard>> response = findByUserIdCall.execute();
             int responseCode = response.code();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -122,6 +126,49 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
         }
 
         return cards;
+    }
+
+    @Override
+    public List<BusinessCard> findByUserName(String firstName, String lastName) throws WebServiceException {
+
+        String message;
+        List<BusinessCard> cards;
+        Call<List<BusinessCard>> findByUserNameCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserName(firstName, lastName);
+
+        try {
+            Response<List<BusinessCard>> response = findByUserNameCall.execute();
+            int responseCode = response.code();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                cards = response.body();
+            } else {
+
+                switch (responseCode) {
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new WebServiceException("Unauthorized Access");
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        throw new WebServiceException("User did not found");
+                    case HttpURLConnection.HTTP_CONFLICT:
+                        throw new WebServiceException("Server Conflict");
+                    case HttpURLConnection.HTTP_NO_CONTENT:
+                        throw new WebServiceException("No business cards");
+                    default:
+                        throw new WebServiceException("Server returned response code: " + responseCode);
+                }
+
+            }
+
+        } catch (IOException ex) {
+            if (ex instanceof SocketTimeoutException) {
+                message = "Connection Time out. Please try again.";
+            } else {
+                message = ex.getMessage();
+            }
+            throw new WebServiceException(message);
+        }
+
+        return cards;
+
     }
 
     @Override

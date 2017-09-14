@@ -74,7 +74,7 @@ public class CreateBusinessCardFragment extends Fragment {
 
         // Change action button text
         Button createBtn = (Button) view.findViewById(R.id.button_action);
-        createBtn.setText(R.string.button_action_create_business_card);
+        createBtn.setText(R.string.button_action_create);
 
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -84,7 +84,7 @@ public class UpdateUserFragment extends Fragment {
 
         // Change action button text
         Button updateBtn = (Button) view.findViewById(R.id.button_action);
-        updateBtn.setText(R.string.button_action_update_user);
+        updateBtn.setText(R.string.button_action_save);
 
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override

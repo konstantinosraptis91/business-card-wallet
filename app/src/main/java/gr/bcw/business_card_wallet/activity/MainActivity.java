@@ -22,7 +22,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 
@@ -132,6 +131,10 @@ public class MainActivity extends AppCompatActivity {
                 switch (currentPage) {
                     case 0: // here fab event when click and MyBusinessCardsFragment is visible (position 0)
                         Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
+                        Bundle b = new Bundle();
+                        b.putString(BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getType(),
+                                BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getValue());
+                        intent.putExtras(b);
                         startActivity(intent);
                         break;
                     case 1: // here fab event when click and AddedBusinessCardsFragment is visible (position 1)
@@ -146,10 +149,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 animateFab();
-                // Toast.makeText(MainActivity.this, "Add Business Card by ID", Toast.LENGTH_SHORT).show();
                 FragmentManager manager = ((AppCompatActivity) context).getSupportFragmentManager();
-//                MyBusinessCardsFragment fragment = (MyBusinessCardsFragment) manager.findFragmentByTag("1");
-//                fragment.showHideAddCardByIdLayout();
+
                 for (Fragment f : manager.getFragments()) {
                     if (f instanceof AddedBusinessCardsFragment) {
                         ((AddedBusinessCardsFragment) f).showHideAddCardByIdLayout();
@@ -162,7 +163,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 animateFab();
-                Toast.makeText(MainActivity.this, "Search for Business Card", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
+                Bundle b = new Bundle();
+                b.putString(BusinessCardActivity.BusinessCardFragmentType.SEARCH_BC.getType(),
+                        BusinessCardActivity.BusinessCardFragmentType.SEARCH_BC.getValue());
+                intent.putExtras(b);
+                startActivity(intent);
             }
         });
 
@@ -229,8 +236,6 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     fragment = new MyBusinessCardsFragment();
-//                    FragmentManager manager = ((AppCompatActivity) context).getSupportFragmentManager();
-//                    manager.beginTransaction().add(fragment, "1").commit();
                     break;
                 case 1:
                     fragment = new AddedBusinessCardsFragment();
