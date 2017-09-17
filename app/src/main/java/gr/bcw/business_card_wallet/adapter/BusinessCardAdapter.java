@@ -11,13 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Set;
 
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.model.BusinessCard;
@@ -38,12 +38,12 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
 
     public static final String TAG = BusinessCardAdapter.class.getSimpleName();
     private Context context;
+    private Set<Long> currentWalletCardsIdSet;
+    private final CardType type;
 
     public enum CardType {
         MY_BUSINESS_CARD, ADDED_BUSINESS_CARD, SEARCH_BUSINESS_CARD
     }
-
-    private final CardType type;
 
     public BusinessCardAdapter(@NonNull Context context, List<BusinessCard> cards, CardType type) {
         super(context, R.layout.row_business_card, cards);
@@ -51,6 +51,16 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         this.context = context;
     }
 
+    public void setCurrentWalletCardsIdSet(Set<Long> currentWalletCardsIdSet) {
+        this.currentWalletCardsIdSet = currentWalletCardsIdSet;
+    }
+
+    /**
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return Return a Card View
+     */
     @NonNull
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -59,7 +69,7 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         CardView cardView = (CardView) rowView.findViewById(R.id.card_view);
         // same button for my and added business cards
         ImageButton deleteBCButton = (ImageButton) rowView.findViewById(R.id.deleteBCButton);
-        CheckBox checkToAdd = (CheckBox) rowView.findViewById(R.id.checkToAdd);
+        ImageButton addToWalletButton = (ImageButton) rowView.findViewById(R.id.saveCardToWalletButton);
 
         final BusinessCard card = getItem(position);
         final TextView businessCardId = (TextView) rowView.findViewById(R.id.info_card_id_text_view);
@@ -73,8 +83,6 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         email1.setText(card.getEmail1());
         website.setText(card.getWebsite());
         profession.setText("Profession ID: " + card.getProfessionId());
-
-
 
         // draw card's background
         switch (type) {
@@ -104,18 +112,53 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
                         entry.setUserId(appUserId);
                         entry.setBusinessCardId(card.getId());
 
-                        Log.i(TAG, entry.toString());
-
                         DeleteWalletEntryTask deleteEntryTask = new DeleteWalletEntryTask(entry, token, position);
                         deleteEntryTask.execute(new WalletEntryWebServiceImpl());
                     }
                 });
                 break;
             case SEARCH_BUSINESS_CARD:
-                cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorLightPrimary));
+                // 3 cases for color here
+                // 1 my card, 2 added card, 3 non added card
 
-                // display checkbox
-                checkToAdd.setVisibility(View.VISIBLE);
+                long appUserId = UserUtils.getID(context);
+
+                // display save button (only if card NOT in user's wallet and card is NOT his card)
+                if (!currentWalletCardsIdSet.contains(card.getId()) && card.getUserId() != appUserId) {
+                    addToWalletButton.setVisibility(View.VISIBLE);
+
+                    // save card to wallet
+                    addToWalletButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            String token = TokenUtils.getToken(context);
+                            long appUserId = UserUtils.getID(context);
+
+                            WalletEntry entry = new WalletEntry();
+                            entry.setUserId(appUserId);
+                            entry.setBusinessCardId(card.getId());
+
+                            SaveWalletEntryTask saveWalletEntryTask = new SaveWalletEntryTask(entry, token, position);
+                            saveWalletEntryTask.execute(new WalletEntryWebServiceImpl());
+                        }
+                    });
+
+                }
+
+                // color case 1
+                if (card.getUserId() == appUserId) {
+                    cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorMyBusinessCard));
+                }
+                // color case 2
+                else if (currentWalletCardsIdSet.contains(card.getId())) {
+                    cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorAddedBusinessCard));
+                }
+                // color case 2
+                else {
+                    cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorNonSavedAndNonMineBC));
+                }
+
                 // hide delete image button
                 deleteBCButton.setVisibility(View.GONE);
                 break;
@@ -123,14 +166,12 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
 
         // add some extra margin at the bottom of the last card
         if (position == BusinessCardAdapter.this.getCount() - 1) {
-            Log.i(TAG, card.toString());
-
             // cardWindow
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) cardView.getLayoutParams();
 
             int dpValue = 10; // margin in dips
             float d = context.getResources().getDisplayMetrics().density;
-            int margin = (int)(dpValue * d); // margin in pixels
+            int margin = (int) (dpValue * d); // margin in pixels
 
             params.setMargins(margin, margin, margin, margin);
             cardView.setLayoutParams(params);
@@ -220,6 +261,48 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
                 // business card  didn't deleted successfully
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
+        }
+
+    }
+
+    private class SaveWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, BusinessCard> {
+
+        private String token;
+        private final WalletEntry entry;
+        private String message = "";
+        private int position;
+
+        public SaveWalletEntryTask(WalletEntry entry, String token, int position) {
+            this.token = token;
+            this.entry = entry;
+            this.position = position;
+        }
+
+        @Override
+        protected BusinessCard doInBackground(WalletEntryWebService... params) {
+            WalletEntryWebService service = params[0];
+            BusinessCard card = null;
+
+            try {
+                card = service.saveWalletEntry(entry, token);
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
+            }
+
+            return card;
+        }
+
+        @Override
+        protected void onPostExecute(BusinessCard card) {
+
+            if (card != null) {
+                BusinessCardAdapter.this.remove(BusinessCardAdapter.this.getItem(position));
+                Log.i(TAG, "added");
+            } else {
+                // wallet entry wasn't saved successfully
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+
         }
 
     }

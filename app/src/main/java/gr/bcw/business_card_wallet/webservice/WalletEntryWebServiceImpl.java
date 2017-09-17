@@ -1,7 +1,5 @@
 package gr.bcw.business_card_wallet.webservice;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;

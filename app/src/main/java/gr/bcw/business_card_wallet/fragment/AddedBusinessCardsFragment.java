@@ -217,7 +217,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
     private class SaveWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, BusinessCard> {
 
         private String token;
-        private WalletEntry entry;
+        private final WalletEntry entry;
         private String message = "";
 
         public SaveWalletEntryTask(WalletEntry entry, String token) {
@@ -246,7 +246,6 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
             if (card != null) {
                 // wallet entry saved successfully
-                Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "wallet entry saved successfully");
                 Log.d(TAG, card.toString());
 

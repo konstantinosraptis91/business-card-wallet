@@ -10,25 +10,29 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.adapter.BusinessCardAdapter;
 import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.util.TokenUtils;
+import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.BusinessCardWebService;
 import gr.bcw.business_card_wallet.webservice.BusinessCardWebServiceImpl;
+import gr.bcw.business_card_wallet.webservice.WalletEntryWebServiceImpl;
+import gr.bcw.business_card_wallet.webservice.WebService;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import io.realm.Realm;
 
@@ -69,11 +73,8 @@ public class SearchBusinessCardFragment extends Fragment {
         progressView = rootView.findViewById(R.id.progress);
         nameEditText = (EditText) rootView.findViewById(R.id.name_editText);
 
-        // Change action button text
-        Button saveButton = (Button) rootView.findViewById(R.id.button_action);
-        saveButton.setText(R.string.button_action_save);
-
         searchButton = (ImageButton) rootView.findViewById(R.id.search_button);
+        ImageButton clearButton = (ImageButton) rootView.findViewById(R.id.clear_button);
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,10 +83,11 @@ public class SearchBusinessCardFragment extends Fragment {
             }
         });
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        // Clear name edit text here
+        clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                nameEditText.setText("");
             }
         });
 
@@ -132,8 +134,12 @@ public class SearchBusinessCardFragment extends Fragment {
             focusView.requestFocus();
         } else {
             showProgress(true);
-            searchTask = new SearchTask(firstName, lastName);
-            searchTask.execute(new BusinessCardWebServiceImpl());
+
+            long id = UserUtils.getID(getActivity());
+            String token = TokenUtils.getToken(getActivity());
+
+            searchTask = new SearchTask(firstName, lastName, id, token);
+            searchTask.execute(new WebService[] {new BusinessCardWebServiceImpl(), new WalletEntryWebServiceImpl()});
         }
     }
 
@@ -173,27 +179,36 @@ public class SearchBusinessCardFragment extends Fragment {
         }
     }
 
-    private class SearchTask extends AsyncTask<BusinessCardWebService, Void, List<BusinessCard>> {
+    private class SearchTask extends AsyncTask<WebService, Void, List<BusinessCard>> {
 
+        private long userId;
+        private String authToken;
         private String message = "";
         private String firstName;
         private String lastName;
+        private Set<Long> currentWalletCardsIdSet;
 
-        public SearchTask(String firstName, String lastName) {
+        public SearchTask(String firstName, String lastName, long userId, String authToken) {
             this.firstName = firstName;
             this.lastName = lastName;
+            this.userId = userId;
+            this.authToken = authToken;
+            currentWalletCardsIdSet = new LinkedHashSet<>();
         }
 
         @Override
-        protected List<BusinessCard> doInBackground(BusinessCardWebService... params) {
-            BusinessCardWebService service = params[0];
+        protected List<BusinessCard> doInBackground(WebService... params) {
+            BusinessCardWebService bcService = (BusinessCardWebServiceImpl) params[0];
+            WalletEntryWebServiceImpl walletService = (WalletEntryWebServiceImpl) params[1];
+
             List<BusinessCard> cards = null;
 
             try {
-                cards = service.findByUserName(firstName, lastName);
+                cards = bcService.findByUserName(firstName, lastName);
 
-                for (BusinessCard c : cards) {
-                    Log.i(TAG, c.toString());
+                // extract all card id from user's wallet
+                for (BusinessCard walletCard : walletService.getWallet(userId, authToken)) {
+                    currentWalletCardsIdSet.add(walletCard.getId());
                 }
 
             } catch (WebServiceException ex) {
@@ -211,6 +226,7 @@ public class SearchBusinessCardFragment extends Fragment {
             if (cards != null) {
 
                 cardAdapter.clear();
+                cardAdapter.setCurrentWalletCardsIdSet(currentWalletCardsIdSet);
 
                 for (BusinessCard c : cards) {
                     cardAdapter.add(c);
@@ -218,7 +234,6 @@ public class SearchBusinessCardFragment extends Fragment {
 
                 cardAdapter.notifyDataSetChanged();
 
-                // hide soft keyboard
                 // hide soft keyboard
                 InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(searchButton.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
