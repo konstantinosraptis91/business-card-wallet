@@ -11,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +59,7 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         CardView cardView = (CardView) rowView.findViewById(R.id.card_view);
         // same button for my and added business cards
         ImageButton deleteBCButton = (ImageButton) rowView.findViewById(R.id.deleteBCButton);
+        CheckBox checkToAdd = (CheckBox) rowView.findViewById(R.id.checkToAdd);
 
         final BusinessCard card = getItem(position);
         final TextView businessCardId = (TextView) rowView.findViewById(R.id.info_card_id_text_view);
@@ -70,6 +73,8 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
         email1.setText(card.getEmail1());
         website.setText(card.getWebsite());
         profession.setText("Profession ID: " + card.getProfessionId());
+
+
 
         // draw card's background
         switch (type) {
@@ -107,7 +112,29 @@ public class BusinessCardAdapter extends ArrayAdapter<BusinessCard> {
                 });
                 break;
             case SEARCH_BUSINESS_CARD:
+                cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorLightPrimary));
+
+                // display checkbox
+                checkToAdd.setVisibility(View.VISIBLE);
+                // hide delete image button
+                deleteBCButton.setVisibility(View.GONE);
                 break;
+        }
+
+        // add some extra margin at the bottom of the last card
+        if (position == BusinessCardAdapter.this.getCount() - 1) {
+            Log.i(TAG, card.toString());
+
+            // cardWindow
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) cardView.getLayoutParams();
+
+            int dpValue = 10; // margin in dips
+            float d = context.getResources().getDisplayMetrics().density;
+            int margin = (int)(dpValue * d); // margin in pixels
+
+            params.setMargins(margin, margin, margin, margin);
+            cardView.setLayoutParams(params);
+            cardView.requestLayout();
         }
 
         return rowView;

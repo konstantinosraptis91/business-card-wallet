@@ -132,7 +132,6 @@ public class SearchBusinessCardFragment extends Fragment {
             focusView.requestFocus();
         } else {
             showProgress(true);
-
             searchTask = new SearchTask(firstName, lastName);
             searchTask.execute(new BusinessCardWebServiceImpl());
         }
@@ -210,6 +209,8 @@ public class SearchBusinessCardFragment extends Fragment {
             showProgress(false);
 
             if (cards != null) {
+
+                cardAdapter.clear();
 
                 for (BusinessCard c : cards) {
                     cardAdapter.add(c);
