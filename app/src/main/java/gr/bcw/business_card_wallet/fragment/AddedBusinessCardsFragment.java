@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.adapter.BusinessCardAdapter;
-import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.adapter.BusinessCardResponseAdapter;
 import gr.bcw.business_card_wallet.model.WalletEntry;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.WalletEntryWebService;
@@ -46,7 +46,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
     public static final String ARG_OBJECT = "object";
 
     private ListView cardListView;
-    private BusinessCardAdapter cardAdapter;
+    private BusinessCardResponseAdapter cardAdapter;
     private GetWalletTask getWalletTask = null;
     private SaveWalletEntryTask saveWalletEntryTask = null;
 
@@ -74,7 +74,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
         View rootView = inflater.inflate(R.layout.fragment_business_cards, container, false);
         cardListView = (ListView) rootView.findViewById(R.id.businessCardsListView);
-        cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>(), BusinessCardAdapter.CardType.ADDED_BUSINESS_CARD);
+        cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.ADDED_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
         progressView = rootView.findViewById(R.id.progress);
@@ -214,7 +214,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         attemptGetWallet();
     }
 
-    private class SaveWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, BusinessCard> {
+    private class SaveWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, BusinessCardResponse> {
 
         private String token;
         private final WalletEntry entry;
@@ -226,9 +226,9 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         }
 
         @Override
-        protected BusinessCard doInBackground(WalletEntryWebService... params) {
+        protected BusinessCardResponse doInBackground(WalletEntryWebService... params) {
             WalletEntryWebService service = params[0];
-            BusinessCard card = null;
+            BusinessCardResponse card = null;
 
             try {
                 card = service.saveWalletEntry(entry, token);
@@ -240,7 +240,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         }
 
         @Override
-        protected void onPostExecute(BusinessCard card) {
+        protected void onPostExecute(BusinessCardResponse card) {
             saveWalletEntryTask = null;
             showProgress(false);
 
@@ -269,7 +269,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
     }
 
-    private class GetWalletTask extends AsyncTask<WalletEntryWebService, Void, List<BusinessCard>> {
+    private class GetWalletTask extends AsyncTask<WalletEntryWebService, Void, List<BusinessCardResponse>> {
 
         private long id;
         private String token;
@@ -281,9 +281,9 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         }
 
         @Override
-        protected List<BusinessCard> doInBackground(WalletEntryWebService... params) {
+        protected List<BusinessCardResponse> doInBackground(WalletEntryWebService... params) {
             WalletEntryWebService service = params[0];
-            List<BusinessCard> cardList = null;
+            List<BusinessCardResponse> cardList = null;
 
             try {
                 cardList = service.getWallet(id, token);
@@ -295,7 +295,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         }
 
         @Override
-        protected void onPostExecute(List<BusinessCard> cardList) {
+        protected void onPostExecute(List<BusinessCardResponse> cardList) {
             getWalletTask = null;
             showProgress(false);
             mSwipeRefreshLayout.setRefreshing(false);
@@ -305,7 +305,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
                 Log.d(TAG, "get wallet performed successfully");
                 Log.d(TAG, cardList.toString());
 
-                for (BusinessCard card : cardList) {
+                for (BusinessCardResponse card : cardList) {
                     cardAdapter.add(card);
                 }
 

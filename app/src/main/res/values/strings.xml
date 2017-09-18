@@ -38,6 +38,7 @@
     <!-- Business Card -->
     <string name="text_view_bc_name">John Smith</string>
     <string name="text_view_bc_email">john@smith.com</string>
+    <string name="text_view_bc_company">Company</string>
     <string name="text_view_bc_profession">Manager</string>
     <string name="text_view_bc_website">www.johnsmith.com</string>
 

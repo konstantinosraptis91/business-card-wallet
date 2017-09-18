@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -32,14 +33,14 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
         @POST(BUSINESS_CARD)
         Call<Void> createBusinessCard(@Body BusinessCard businessCard, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
-        @GET(BUSINESS_CARD + "/" + UserWebService.USER + "/" + "{id}")
-        Call<List<BusinessCard>> findByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
-
-        @GET(BUSINESS_CARD + "/" + UserWebService.USER)
-        Call<List<BusinessCard>> findByUserName(@Query("firstname") String firstName, @Query("lastname") String lastName);
-
         @DELETE(BUSINESS_CARD + "/" + "{id}")
         Call<Void> deleteBusinessCardById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
+        @GET(BUSINESS_CARD + "/v2/" + UserWebService.USER + "/" + "{id}")
+        Call<List<BusinessCardResponse>> findByUserIdV2(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
+        @GET(BUSINESS_CARD + "/v2/" + UserWebService.USER)
+        Call<List<BusinessCardResponse>> findByUserNameV2(@Query("firstname") String firstName, @Query("lastname") String lastName);
 
     }
 
@@ -87,14 +88,14 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
     }
 
     @Override
-    public List<BusinessCard> findByUserId(long id, String token) throws WebServiceException {
+    public List<BusinessCardResponse> findByUserIdV2(long id, String token) throws WebServiceException {
 
         String message;
-        List<BusinessCard> cards;
-        Call<List<BusinessCard>> findByUserIdCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserId(id, token);
+        List<BusinessCardResponse> cards;
+        Call<List<BusinessCardResponse>> findByUserIdCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserIdV2(id, token);
 
         try {
-            Response<List<BusinessCard>> response = findByUserIdCall.execute();
+            Response<List<BusinessCardResponse>> response = findByUserIdCall.execute();
             int responseCode = response.code();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -129,14 +130,14 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
     }
 
     @Override
-    public List<BusinessCard> findByUserName(String firstName, String lastName) throws WebServiceException {
+    public List<BusinessCardResponse> findByUserNameV2(String firstName, String lastName) throws WebServiceException {
 
         String message;
-        List<BusinessCard> cards;
-        Call<List<BusinessCard>> findByUserNameCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserName(firstName, lastName);
+        List<BusinessCardResponse> cards;
+        Call<List<BusinessCardResponse>> findByUserNameCall = ServiceGenerator.createService(BusinessCardAPI.class).findByUserNameV2(firstName, lastName);
 
         try {
-            Response<List<BusinessCard>> response = findByUserNameCall.execute();
+            Response<List<BusinessCardResponse>> response = findByUserNameCall.execute();
             int responseCode = response.code();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -168,7 +169,6 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
         }
 
         return cards;
-
     }
 
     @Override

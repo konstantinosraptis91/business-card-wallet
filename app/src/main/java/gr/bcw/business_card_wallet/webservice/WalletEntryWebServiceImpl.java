@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.WalletEntry;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -31,10 +31,10 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
     private interface WalletEntryAPI {
 
         @POST(WALLET_ENTRY)
-        Call<BusinessCard> saveWalletEntry(@Body WalletEntry entry, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+        Call<BusinessCardResponse> saveWalletEntry(@Body WalletEntry entry, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
         @GET(WALLET_ENTRY + "/" + UserWebService.USER + "/" + "{id}")
-        Call<List<BusinessCard>> findAllBusinessCardsByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+        Call<List<BusinessCardResponse>> findAllBusinessCardsByUserId(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
         @DELETE(WALLET_ENTRY)
         Call<Void> deleteWalletEntry(@Query("userId") long userId, @Query("businessCardId") long businessCardId, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
@@ -42,14 +42,14 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
     }
 
     @Override
-    public BusinessCard saveWalletEntry(WalletEntry entry, String token) throws WebServiceException {
+    public BusinessCardResponse saveWalletEntry(WalletEntry entry, String token) throws WebServiceException {
 
         String message;
-        BusinessCard card;
-        Call<BusinessCard> saveWalletEntryCall = ServiceGenerator.createService(WalletEntryAPI.class).saveWalletEntry(entry, token);
+        BusinessCardResponse card;
+        Call<BusinessCardResponse> saveWalletEntryCall = ServiceGenerator.createService(WalletEntryAPI.class).saveWalletEntry(entry, token);
 
         try {
-            Response<BusinessCard> response = saveWalletEntryCall.execute();
+            Response<BusinessCardResponse> response = saveWalletEntryCall.execute();
             int responseCode = response.code();
 
             if (responseCode == HttpURLConnection.HTTP_CREATED) {
@@ -80,14 +80,14 @@ public class WalletEntryWebServiceImpl implements WalletEntryWebService {
     }
 
     @Override
-    public List<BusinessCard> getWallet(long id, @NotNull String token) throws WebServiceException {
+    public List<BusinessCardResponse> getWallet(long id, @NotNull String token) throws WebServiceException {
 
         String message;
-        List<BusinessCard> cards;
-        Call<List<BusinessCard>> walletCall = ServiceGenerator.createService(WalletEntryAPI.class).findAllBusinessCardsByUserId(id, token);
+        List<BusinessCardResponse> cards;
+        Call<List<BusinessCardResponse>> walletCall = ServiceGenerator.createService(WalletEntryAPI.class).findAllBusinessCardsByUserId(id, token);
 
         try {
-            Response<List<BusinessCard>> response = walletCall.execute();
+            Response<List<BusinessCardResponse>> response = walletCall.execute();
             int responseCode = response.code();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {

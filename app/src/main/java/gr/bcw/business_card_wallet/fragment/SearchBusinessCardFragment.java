@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.adapter.BusinessCardAdapter;
-import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.adapter.BusinessCardResponseAdapter;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.BusinessCardWebService;
@@ -47,7 +47,7 @@ public class SearchBusinessCardFragment extends Fragment {
     // Local DB
     private Realm realm;
 
-    private BusinessCardAdapter cardAdapter;
+    private BusinessCardResponseAdapter cardAdapter;
     private SearchTask searchTask = null;
 
     // UI references
@@ -68,7 +68,7 @@ public class SearchBusinessCardFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_search_business_card, container, false);
         cardListView = (ListView) rootView.findViewById(R.id.businessCardsListView);
-        cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>(), BusinessCardAdapter.CardType.SEARCH_BUSINESS_CARD);
+        cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.SEARCH_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
         progressView = rootView.findViewById(R.id.progress);
         nameEditText = (EditText) rootView.findViewById(R.id.name_editText);
@@ -179,7 +179,7 @@ public class SearchBusinessCardFragment extends Fragment {
         }
     }
 
-    private class SearchTask extends AsyncTask<WebService, Void, List<BusinessCard>> {
+    private class SearchTask extends AsyncTask<WebService, Void, List<BusinessCardResponse>> {
 
         private long userId;
         private String authToken;
@@ -197,18 +197,18 @@ public class SearchBusinessCardFragment extends Fragment {
         }
 
         @Override
-        protected List<BusinessCard> doInBackground(WebService... params) {
+        protected List<BusinessCardResponse> doInBackground(WebService... params) {
             BusinessCardWebService bcService = (BusinessCardWebServiceImpl) params[0];
             WalletEntryWebServiceImpl walletService = (WalletEntryWebServiceImpl) params[1];
 
-            List<BusinessCard> cards = null;
+            List<BusinessCardResponse> cards = null;
 
             try {
-                cards = bcService.findByUserName(firstName, lastName);
+                cards = bcService.findByUserNameV2(firstName, lastName);
 
                 // extract all card id from user's wallet
-                for (BusinessCard walletCard : walletService.getWallet(userId, authToken)) {
-                    currentWalletCardsIdSet.add(walletCard.getId());
+                for (BusinessCardResponse walletCard : walletService.getWallet(userId, authToken)) {
+                    currentWalletCardsIdSet.add(walletCard.getBusinessCard().getId());
                 }
 
             } catch (WebServiceException ex) {
@@ -219,7 +219,7 @@ public class SearchBusinessCardFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(List<BusinessCard> cards) {
+        protected void onPostExecute(List<BusinessCardResponse> cards) {
             searchTask = null;
             showProgress(false);
 
@@ -228,7 +228,7 @@ public class SearchBusinessCardFragment extends Fragment {
                 cardAdapter.clear();
                 cardAdapter.setCurrentWalletCardsIdSet(currentWalletCardsIdSet);
 
-                for (BusinessCard c : cards) {
+                for (BusinessCardResponse c : cards) {
                     cardAdapter.add(c);
                 }
 

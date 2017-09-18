@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.adapter.BusinessCardAdapter;
-import gr.bcw.business_card_wallet.model.BusinessCard;
+import gr.bcw.business_card_wallet.adapter.BusinessCardResponseAdapter;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
 import gr.bcw.business_card_wallet.webservice.BusinessCardWebService;
@@ -38,7 +38,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
     public static final String TAG = MyBusinessCardsFragment.class.getSimpleName();
 
     private ListView cardListView;
-    private BusinessCardAdapter cardAdapter;
+    private BusinessCardResponseAdapter cardAdapter;
     private MyBusinessCardsFragment.GetBusinessCardsByUserIdTask getBusinessCardsByUserIdTask = null;
 
     private Realm realm;
@@ -61,7 +61,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         View rootView = inflater.inflate(R.layout.fragment_business_cards, container, false);
         cardListView = (ListView) rootView.findViewById(R.id.businessCardsListView);
 
-        cardAdapter = new BusinessCardAdapter(getActivity(), new ArrayList<BusinessCard>(), BusinessCardAdapter.CardType.MY_BUSINESS_CARD);
+        cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.MY_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
         progressView = rootView.findViewById(R.id.progress);
@@ -131,7 +131,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         attemptGetBusinessCardsByUserId();
     }
 
-    private class GetBusinessCardsByUserIdTask extends AsyncTask<BusinessCardWebService, Void, List<BusinessCard>> {
+    private class GetBusinessCardsByUserIdTask extends AsyncTask<BusinessCardWebService, Void, List<BusinessCardResponse>> {
 
         private long id;
         private String token;
@@ -143,12 +143,12 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         }
 
         @Override
-        protected List<BusinessCard> doInBackground(BusinessCardWebService... params) {
+        protected List<BusinessCardResponse> doInBackground(BusinessCardWebService... params) {
             BusinessCardWebService service = params[0];
-            List<BusinessCard> cardList = null;
+            List<BusinessCardResponse> cardList = null;
 
             try {
-                cardList = service.findByUserId(id, token);
+                cardList = service.findByUserIdV2(id, token);
             } catch (WebServiceException ex) {
                 message = ex.getMessage();
             }
@@ -157,7 +157,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         }
 
         @Override
-        protected void onPostExecute(List<BusinessCard> cardList) {
+        protected void onPostExecute(List<BusinessCardResponse> cardList) {
             getBusinessCardsByUserIdTask = null;
             showProgress(false);
             mSwipeRefreshLayout.setRefreshing(false);
@@ -167,7 +167,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
                 Log.d(TAG, "get user's personal business cards performed successfully");
                 Log.d(TAG, cardList.toString());
 
-                for (BusinessCard card : cardList) {
+                for (BusinessCardResponse card : cardList) {
                     cardAdapter.add(card);
                 }
 
