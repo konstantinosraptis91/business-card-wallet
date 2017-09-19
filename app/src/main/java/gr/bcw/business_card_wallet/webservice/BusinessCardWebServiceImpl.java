@@ -50,49 +50,6 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
 
     }
 
-//    @Override
-//    public BusinessCard createBusinessCard(@NotNull BusinessCard businessCard, String token) throws WebServiceException {
-//
-//        String message;
-//        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCard(businessCard, token);
-//
-//        try {
-//            Response<Void> response = createBusinessCardCall.execute();
-//            int responseCode = response.code();
-//
-//            if (responseCode == HttpURLConnection.HTTP_CREATED) {
-//                String location = response.headers().get("Location");
-//                long id = extractBusinessCardId(location);
-//
-//                businessCard.setId(id);
-//
-//            } else {
-//
-//                switch (responseCode) {
-//                    case HttpURLConnection.HTTP_UNAUTHORIZED:
-//                        throw new WebServiceException("Unauthorized Access");
-//                    case HttpURLConnection.HTTP_NOT_FOUND:
-//                        throw new WebServiceException("Business Card Owner (User) does not Exist");
-//                    case HttpURLConnection.HTTP_CONFLICT:
-//                        throw new WebServiceException("Server Conflict");
-//                    default:
-//                        throw new WebServiceException("Server returned response code: " + responseCode);
-//                }
-//
-//            }
-//
-//        } catch (IOException ex) {
-//            if (ex instanceof SocketTimeoutException) {
-//                message = "Connection Time out. Please try again.";
-//            } else {
-//                message = ex.getMessage();
-//            }
-//            throw new WebServiceException(message);
-//        }
-//
-//        return businessCard;
-//    }
-
     @Override
     public BusinessCardRequest createBusinessCardV2(@NotNull BusinessCardRequest cardRequest, String token) throws WebServiceException {
 

@@ -74,7 +74,7 @@ public class BusinessCardActivity extends AppCompatActivity {
               if (value.equals(BusinessCardFragmentType.SEARCH_BC.getValue())) {
 
                 activityTitle.setText(R.string.action_bar_search_business_card_title);
-                findViewById(R.id.create_business_card_fragment_1).setVisibility(View.GONE);
+                // findViewById(R.id.create_business_card_fragment_1).setVisibility(View.GONE);
 
             }
 

@@ -16,8 +16,6 @@ public interface BusinessCardWebService extends WebService {
 
     String BUSINESS_CARD = "businesscard";
 
-//    BusinessCard createBusinessCard(@NotNull BusinessCard businessCard, String token) throws WebServiceException;
-
     BusinessCardRequest createBusinessCardV2(@NotNull BusinessCardRequest request, String token) throws WebServiceException;
 
     List<BusinessCardResponse> findByUserNameV2(String firstName, String lastName) throws WebServiceException;

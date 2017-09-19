@@ -22,6 +22,4 @@ public interface UserWebService extends WebService {
 
     boolean updateUserById(long id, User user, String token) throws WebServiceException;
 
-//    boolean deleteUserById(long id, String token) throws WebServiceException;
-
 }

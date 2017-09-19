@@ -6,13 +6,6 @@
     >
 
     <fragment
-        android:id="@+id/create_business_card_fragment_1"
-        class="gr.bcw.business_card_wallet.fragment.CreateBusinessCardFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-
-    <fragment
         android:id="@+id/search_business_card_fragment_1"
         class="gr.bcw.business_card_wallet.fragment.SearchBusinessCardFragment"
         android:layout_width="match_parent"
