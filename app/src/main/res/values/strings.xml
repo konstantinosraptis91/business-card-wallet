@@ -4,6 +4,8 @@
     <!-- Strings related to login -->
     <string name="prompt_login">LOGIN</string>
     <string name="prompt_email">Email</string>
+    <string name="prompt_profession">Profession</string>
+    <string name="prompt_company">Company</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_password_again">Password (Again)</string>
     <string name="prompt_firstName">First Name</string>
@@ -67,5 +69,10 @@
 
     <!-- Unique Tags -->
     <string name="my_business_card_fragment_tag">myBusinessCardFragmentTag</string>
+
+    <!-- hints -->
+    <string name="search_hint">Αναζήτηση</string>
+    <string name="search_profession_hint">Αναζήτηση Επαγγέλματος/Ιδιότητας</string>
+    <string name="search_company_hint">Αναζήτηση Επιχείρησης/Οργανισμού</string>
 
 </resources>

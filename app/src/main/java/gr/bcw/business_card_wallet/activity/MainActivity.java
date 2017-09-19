@@ -130,12 +130,15 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (currentPage) {
                     case 0: // here fab event when click and MyBusinessCardsFragment is visible (position 0)
-                        Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
-                        Bundle b = new Bundle();
-                        b.putString(BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getType(),
-                                BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getValue());
-                        intent.putExtras(b);
-                        startActivity(intent);
+//                        Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
+//                        Bundle b = new Bundle();
+//                        b.putString(BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getType(),
+//                                BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getValue());
+//                        intent.putExtras(b);
+//                        startActivity(intent);
+
+                        Intent createCardIntent = new Intent(MainActivity.this, BusinessCardActivity2.class);
+                        startActivity(createCardIntent);
                         break;
                     case 1: // here fab event when click and AddedBusinessCardsFragment is visible (position 1)
                         animateFab();

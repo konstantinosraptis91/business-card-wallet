@@ -3,13 +3,15 @@ package gr.bcw.business_card_wallet.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-// import android.app.Fragment;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import gr.bcw.business_card_wallet.R;
@@ -31,11 +35,13 @@ import gr.bcw.business_card_wallet.webservice.BusinessCardWebServiceImpl;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import io.realm.Realm;
 
+// import android.app.Fragment;
+
 /**
  * Created by konstantinos on 11/9/2017.
  */
 
-public class CreateBusinessCardFragment extends Fragment {
+public class CreateBusinessCardFragment2 extends Fragment {
 
     private static final String TAG = CreateBusinessCardFragment.class.getSimpleName();
 
@@ -47,34 +53,95 @@ public class CreateBusinessCardFragment extends Fragment {
     private Realm realm;
 
     // UI references
+    private ActionBar actionBar;
     private EditText emailView;
     private EditText phoneNumberView;
     private EditText addressView;
     private EditText websiteView;
+    private EditText professionEditText;
+    private EditText companyEditText;
     private View progressView;
     private View createView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayOptions(android.app.ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setCustomView(R.layout.action_bar_custom);
+
+        TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
+        activityTitle.setText(R.string.action_bar_create_business_card_title);
+
         realm = Realm.getDefaultInstance();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (!actionBar.isShowing()) {
+            actionBar.show();
+        }
+
+        actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayOptions(android.app.ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setCustomView(R.layout.action_bar_custom);
+        TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
+        activityTitle.setText(R.string.action_bar_create_business_card_title);
+
+        // set prof name
+        Bundle b = getActivity().getIntent().getExtras();
+
+        if (b != null && b.containsKey("prof-name")) {
+            professionEditText.setText(b.getString("prof-name"));
+            professionEditText.requestFocus();
+        }
+
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_business_card, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_create_business_card, container, false);
 
         // Retrieve current user from realm db
         final User dbUser = new UserStorageHandler().findUserById(realm, UserUtils.getID(getActivity()));
 
-        emailView = (EditText) view.findViewById(R.id.email_editText);
-        phoneNumberView = (EditText) view.findViewById(R.id.phoneNumber_editText);
-        addressView = (EditText) view.findViewById(R.id.address1_editText);
-        websiteView = (EditText) view.findViewById(R.id.website_editText);
+        emailView = (EditText) fragmentView.findViewById(R.id.email_editText);
+        phoneNumberView = (EditText) fragmentView.findViewById(R.id.phoneNumber_editText);
+        addressView = (EditText) fragmentView.findViewById(R.id.address1_editText);
+        websiteView = (EditText) fragmentView.findViewById(R.id.website_editText);
+        professionEditText = (EditText) fragmentView.findViewById(R.id.profession_editText);
+        companyEditText = (EditText) fragmentView.findViewById(R.id.company_editText);
+
+        ImageButton searchForProfessionBtn = (ImageButton) fragmentView.findViewById(R.id.search_profession_button);
+        ImageButton searchForCompanyBtn = (ImageButton) fragmentView.findViewById(R.id.search_company_button);
+
+        searchForProfessionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchForProfessionFragment searchProfFrag = new SearchForProfessionFragment();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fragment_container, searchProfFrag);
+                // allow user to go back
+                transaction.addToBackStack(null);
+
+                transaction.commit();
+            }
+        });
+
+        searchForCompanyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         // Change action button text
-        Button createBtn = (Button) view.findViewById(R.id.button_action);
+        Button createBtn = (Button) fragmentView.findViewById(R.id.button_action);
         createBtn.setText(R.string.button_action_create);
 
         createBtn.setOnClickListener(new View.OnClickListener() {
@@ -84,10 +151,10 @@ public class CreateBusinessCardFragment extends Fragment {
             }
         });
 
-        progressView = view.findViewById(R.id.progress);
-        createView = view.findViewById(R.id.business_card_form);
+        progressView = fragmentView.findViewById(R.id.progress);
+        createView = fragmentView.findViewById(R.id.business_card_form);
 
-        return view;
+        return fragmentView;
     }
 
     private boolean isEmailValid(String email) {
@@ -254,3 +321,4 @@ public class CreateBusinessCardFragment extends Fragment {
     }
 
 }
+
