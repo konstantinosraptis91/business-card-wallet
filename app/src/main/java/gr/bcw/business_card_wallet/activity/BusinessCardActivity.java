@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.fragment.CreateBusinessCardFragment;
+//import gr.bcw.business_card_wallet.fragment.CreateBusinessCardFragment;
 import gr.bcw.business_card_wallet.fragment.SearchBusinessCardFragment;
 
 /**
@@ -24,7 +24,7 @@ public class BusinessCardActivity extends AppCompatActivity {
 
     public enum BusinessCardFragmentType {
 
-        CREATE_BC(FRAGMENT_TYPE, CreateBusinessCardFragment.class.getSimpleName()),
+//        CREATE_BC(FRAGMENT_TYPE, CreateBusinessCardFragment.class.getSimpleName()),
         SEARCH_BC(FRAGMENT_TYPE, SearchBusinessCardFragment.class.getSimpleName());
 
         private String type;
@@ -63,14 +63,15 @@ public class BusinessCardActivity extends AppCompatActivity {
             String value = b.getString(FRAGMENT_TYPE);
 
             // create bc fragment conf here
-            if (value.equals(BusinessCardFragmentType.CREATE_BC.getValue())) {
-
-                activityTitle.setText(R.string.action_bar_create_business_card_title);
-                findViewById(R.id.search_business_card_fragment_1).setVisibility(View.GONE);
-
-            }
+//            if (value.equals(BusinessCardFragmentType.CREATE_BC.getValue())) {
+//
+//                activityTitle.setText(R.string.action_bar_create_business_card_title);
+//                findViewById(R.id.search_business_card_fragment_1).setVisibility(View.GONE);
+//
+//            }
             // search bc fragment conf here
-            else if (value.equals(BusinessCardFragmentType.SEARCH_BC.getValue())) {
+//            else if (value.equals(BusinessCardFragmentType.SEARCH_BC.getValue())) {
+              if (value.equals(BusinessCardFragmentType.SEARCH_BC.getValue())) {
 
                 activityTitle.setText(R.string.action_bar_search_business_card_title);
                 findViewById(R.id.create_business_card_fragment_1).setVisibility(View.GONE);

@@ -1,5 +1,7 @@
 package gr.bcw.business_card_wallet.webservice;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -9,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
+import gr.bcw.business_card_wallet.model.sender.BusinessCardRequest;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -33,6 +36,9 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
         @POST(BUSINESS_CARD)
         Call<Void> createBusinessCard(@Body BusinessCard businessCard, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
+        @POST(BUSINESS_CARD + "/v2")
+        Call<Void> createBusinessCardV2(@Body BusinessCardRequest cardRequest, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
+
         @DELETE(BUSINESS_CARD + "/" + "{id}")
         Call<Void> deleteBusinessCardById(@Path("id") long id, @Header(AUTHORIZATION_HEADER_KEY) String authToken);
 
@@ -44,11 +50,56 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
 
     }
 
+//    @Override
+//    public BusinessCard createBusinessCard(@NotNull BusinessCard businessCard, String token) throws WebServiceException {
+//
+//        String message;
+//        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCard(businessCard, token);
+//
+//        try {
+//            Response<Void> response = createBusinessCardCall.execute();
+//            int responseCode = response.code();
+//
+//            if (responseCode == HttpURLConnection.HTTP_CREATED) {
+//                String location = response.headers().get("Location");
+//                long id = extractBusinessCardId(location);
+//
+//                businessCard.setId(id);
+//
+//            } else {
+//
+//                switch (responseCode) {
+//                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+//                        throw new WebServiceException("Unauthorized Access");
+//                    case HttpURLConnection.HTTP_NOT_FOUND:
+//                        throw new WebServiceException("Business Card Owner (User) does not Exist");
+//                    case HttpURLConnection.HTTP_CONFLICT:
+//                        throw new WebServiceException("Server Conflict");
+//                    default:
+//                        throw new WebServiceException("Server returned response code: " + responseCode);
+//                }
+//
+//            }
+//
+//        } catch (IOException ex) {
+//            if (ex instanceof SocketTimeoutException) {
+//                message = "Connection Time out. Please try again.";
+//            } else {
+//                message = ex.getMessage();
+//            }
+//            throw new WebServiceException(message);
+//        }
+//
+//        return businessCard;
+//    }
+
     @Override
-    public BusinessCard createBusinessCard(@NotNull BusinessCard businessCard, String token) throws WebServiceException {
+    public BusinessCardRequest createBusinessCardV2(@NotNull BusinessCardRequest cardRequest, String token) throws WebServiceException {
+
+        Log.i(TAG, cardRequest.toString());
 
         String message;
-        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCard(businessCard, token);
+        Call<Void> createBusinessCardCall = ServiceGenerator.createService(BusinessCardAPI.class).createBusinessCardV2(cardRequest, token);
 
         try {
             Response<Void> response = createBusinessCardCall.execute();
@@ -58,7 +109,7 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
                 String location = response.headers().get("Location");
                 long id = extractBusinessCardId(location);
 
-                businessCard.setId(id);
+                cardRequest.getBusinessCard().setId(id);
 
             } else {
 
@@ -84,7 +135,7 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
             throw new WebServiceException(message);
         }
 
-        return businessCard;
+        return cardRequest;
     }
 
     @Override

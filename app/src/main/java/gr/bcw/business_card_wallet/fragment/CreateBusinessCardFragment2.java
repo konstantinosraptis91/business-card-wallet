@@ -27,6 +27,7 @@ import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.activity.MainActivity;
 import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.User;
+import gr.bcw.business_card_wallet.model.sender.BusinessCardRequest;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
 import gr.bcw.business_card_wallet.util.UserUtils;
@@ -43,7 +44,7 @@ import io.realm.Realm;
 
 public class CreateBusinessCardFragment2 extends Fragment {
 
-    private static final String TAG = CreateBusinessCardFragment.class.getSimpleName();
+    public static final String TAG = CreateBusinessCardFragment2.class.getSimpleName();
 
     /**
      * Keep track of the create bc task to ensure we can cancel it if requested.
@@ -91,12 +92,19 @@ public class CreateBusinessCardFragment2 extends Fragment {
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_create_business_card_title);
 
-        // set prof name
+        // set prof & comp name
         Bundle b = getActivity().getIntent().getExtras();
 
         if (b != null && b.containsKey("prof-name")) {
             professionEditText.setText(b.getString("prof-name"));
             professionEditText.requestFocus();
+            getActivity().getIntent().removeExtra("prof-name");
+        }
+
+        if (b != null && b.containsKey("comp-name")) {
+            companyEditText.setText(b.getString("comp-name"));
+            companyEditText.requestFocus();
+            getActivity().getIntent().removeExtra("comp-name");
         }
 
     }
@@ -136,7 +144,14 @@ public class CreateBusinessCardFragment2 extends Fragment {
         searchForCompanyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SearchForCompanyFragment searchCompFrag = new SearchForCompanyFragment();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
 
+                transaction.replace(R.id.fragment_container, searchCompFrag);
+                // allow user to go back
+                transaction.addToBackStack(null);
+
+                transaction.commit();
             }
         });
 
@@ -171,12 +186,16 @@ public class CreateBusinessCardFragment2 extends Fragment {
         phoneNumberView.setError(null);
         addressView.setError(null);
         websiteView.setError(null);
+        professionEditText.setError(null);
+        companyEditText.setError(null);
 
         // extract values from editTexts and store them at the time of creation attempt
         String email = emailView.getText().toString();
         String phoneNumber = phoneNumberView.getText().toString();
         String address = addressView.getText().toString();
         String website = websiteView.getText().toString();
+        String profession = professionEditText.getText().toString();
+        String company = companyEditText.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -209,15 +228,17 @@ public class CreateBusinessCardFragment2 extends Fragment {
 
             // card conf goes here
             card.setUserId(id);
-            card.setTemplateId(1L);
-            card.setProfessionId(1L);
-            card.setCompanyId(1L);
             card.setPhoneNumber1(phoneNumber);
             card.setAddress1(address);
             card.setUniversal(true);
             card.setWebsite(website);
 
-            createTask = new CreateBusinessCardTask(card, token);
+            BusinessCardRequest cardRequest = new BusinessCardRequest();
+            cardRequest.setBusinessCard(card);
+            cardRequest.setCompanyName(company);
+            cardRequest.setProfessionName(profession);
+
+            createTask = new CreateBusinessCardTask(cardRequest, token);
             createTask.execute(new BusinessCardWebServiceImpl());
         }
 
@@ -261,12 +282,12 @@ public class CreateBusinessCardFragment2 extends Fragment {
 
     private class CreateBusinessCardTask extends AsyncTask<BusinessCardWebService, Void, Boolean> {
 
-        private BusinessCard card;
+        private BusinessCardRequest cardRequest;
         private String token;
         private String message = "";
 
-        public CreateBusinessCardTask(BusinessCard card, String token) {
-            this.card = card;
+        public CreateBusinessCardTask(BusinessCardRequest cardRequest, String token) {
+            this.cardRequest = cardRequest;
             this.token = token;
         }
 
@@ -276,7 +297,7 @@ public class CreateBusinessCardFragment2 extends Fragment {
             Boolean result = false;
 
             try {
-                card = service.createBusinessCard(card,  token);
+                cardRequest = service.createBusinessCardV2(cardRequest,  token);
                 result = true;
             } catch (WebServiceException ex) {
                 message = ex.getMessage();

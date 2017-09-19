@@ -29,30 +29,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.adapter.ProfessionAdapter;
-import gr.bcw.business_card_wallet.model.Profession;
-import gr.bcw.business_card_wallet.webservice.ProfessionWebService;
-import gr.bcw.business_card_wallet.webservice.ProfessionWebServiceImpl;
+import gr.bcw.business_card_wallet.adapter.CompanyAdapter;
+import gr.bcw.business_card_wallet.model.Company;
+import gr.bcw.business_card_wallet.webservice.CompanyWebService;
+import gr.bcw.business_card_wallet.webservice.CompanyWebServiceImpl;
 import gr.bcw.business_card_wallet.webservice.WebService;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 import io.realm.Realm;
 
-// import android.app.Fragment;
-
 /**
- * Created by konstantinos on 11/9/2017.
+ * Created by konstantinos on 19/9/2017.
  */
 
-public class SearchForProfessionFragment extends Fragment implements View.OnClickListener {
+public class SearchForCompanyFragment extends Fragment implements View.OnClickListener {
 
-    private static final String TAG = SearchForProfessionFragment.class.getSimpleName();
+    private static final String TAG = SearchForCompanyFragment.class.getSimpleName();
 
-    private FindProfessionByNameTask findProfessionByNameTask = null;
+    private FindCompanyByNameTask findCompanyByNameTask = null;
     private Realm realm;
     private ActionBar actionBar;
     private View progressView;
-    private ListView professionListView;
-    private ProfessionAdapter professionAdapter;
+    private ListView companyListView;
+    private CompanyAdapter companyAdapter;
     private EditText searchEditText;
 
     @Override
@@ -73,29 +71,30 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        // get profession name here
-        TextView profNameView = (TextView) v;
-        String profName = profNameView.getText().toString();
+        // get company name here
+        TextView compNameView = (TextView) v;
+        String compName = compNameView.getText().toString();
 
         Bundle b = new Bundle();
-        b.putString("prof-name", profName);
+        b.putString("comp-name", compName);
 
         getActivity().getIntent().putExtras(b);
 
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction trans = manager.beginTransaction();
-        trans.remove(SearchForProfessionFragment.this);
+        trans.remove(SearchForCompanyFragment.this);
         trans.commit();
         manager.popBackStack();
+
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_search, container, false);
-        professionAdapter = new ProfessionAdapter(getActivity(), new ArrayList<Profession>(), SearchForProfessionFragment.this);
-        professionListView = (ListView) fragmentView.findViewById(R.id.entityListView);
-        professionListView.setAdapter(professionAdapter);
+        companyAdapter = new CompanyAdapter(getActivity(), new ArrayList<Company>(), SearchForCompanyFragment.this);
+        companyListView = (ListView) fragmentView.findViewById(R.id.entityListView);
+        companyListView.setAdapter(companyAdapter);
 
         progressView = fragmentView.findViewById(R.id.progress);
 
@@ -103,7 +102,7 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
         searchEditText = (EditText) fragmentView.findViewById(R.id.search_editText);
 
         // change search editText hint
-        searchEditText.setHint(R.string.search_profession_hint);
+        searchEditText.setHint(R.string.search_company_hint);
 
         // when search pressed
         searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -133,7 +132,7 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
     }
 
     private void attemptSearchForProfessions() {
-        if (findProfessionByNameTask != null) {
+        if (findCompanyByNameTask != null) {
             return;
         }
 
@@ -141,7 +140,7 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
 
 
         // extract values from editTexts and store them at the time of creation attempt
-        String profName = searchEditText.getText().toString();
+        String compName = searchEditText.getText().toString();
 
 
         boolean cancel = false;
@@ -159,8 +158,8 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
             // perform the user update attempt.
             showProgress(true);
 
-            findProfessionByNameTask = new FindProfessionByNameTask(profName);
-            findProfessionByNameTask.execute(new ProfessionWebServiceImpl());
+            findCompanyByNameTask = new FindCompanyByNameTask(compName);
+            findCompanyByNameTask.execute(new CompanyWebServiceImpl());
         }
 
     }
@@ -176,12 +175,12 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            professionListView.setVisibility(show ? View.GONE : View.VISIBLE);
-            professionListView.animate().setDuration(shortAnimTime).alpha(
+            companyListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            companyListView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    professionListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    companyListView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -197,27 +196,27 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            professionListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            companyListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
-    private class FindProfessionByNameTask extends AsyncTask<WebService, Void, Boolean> {
+    private class FindCompanyByNameTask extends AsyncTask<WebService, Void, Boolean> {
 
-        private String profName;
+        private String compName;
         private String message = "";
-        private List<Profession> professionList;
+        private List<Company> companyList;
 
-        public FindProfessionByNameTask(String profName) {
-            this.profName = profName;
+        public FindCompanyByNameTask(String compName) {
+            this.compName = compName;
         }
 
         @Override
         protected Boolean doInBackground(WebService... params) {
-            ProfessionWebService service = (ProfessionWebService) params[0];
+            CompanyWebService service = (CompanyWebService) params[0];
             boolean result = false;
 
             try {
-                professionList = service.findByName(profName);
+                companyList = service.findByName(compName);
                 result = true;
             } catch (WebServiceException ex) {
                 message = ex.getMessage();
@@ -228,17 +227,17 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
 
         @Override
         protected void onPostExecute(Boolean result) {
-            findProfessionByNameTask = null;
+            findCompanyByNameTask = null;
             showProgress(false);
 
             if (result) {
                 // clear adapter
-                professionAdapter.clear();
+                companyAdapter.clear();
 
-                for (Profession p : professionList) {
-                    professionAdapter.add(p);
+                for (Company c : companyList) {
+                    companyAdapter.add(c);
                 }
-                professionAdapter.notifyDataSetChanged();
+                companyAdapter.notifyDataSetChanged();
             } else {
                 // something went wrong
                 Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
@@ -248,7 +247,7 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
 
         @Override
         protected void onCancelled() {
-            findProfessionByNameTask = null;
+            findCompanyByNameTask = null;
             showProgress(false);
         }
 
@@ -261,4 +260,3 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
     }
 
 }
-

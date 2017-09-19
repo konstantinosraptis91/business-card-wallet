@@ -13,6 +13,6 @@ public interface ProfessionWebService extends WebService {
 
     String PROFESSION = "profession";
 
-    List<Profession> findByName(String name) throws WebServiceException;;
+    List<Profession> findByName(String name) throws WebServiceException;
 
 }
