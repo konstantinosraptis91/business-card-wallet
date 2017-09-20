@@ -3,6 +3,7 @@ package gr.bcw.business_card_wallet.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -75,6 +76,8 @@ public class CreateBusinessCardFragment extends Fragment {
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_create_business_card_title);
 
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         realm = Realm.getDefaultInstance();
     }
 
@@ -91,6 +94,8 @@ public class CreateBusinessCardFragment extends Fragment {
         actionBar.setCustomView(R.layout.action_bar_custom);
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_create_business_card_title);
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         // set prof & comp name
         Bundle b = getActivity().getIntent().getExtras();
@@ -201,6 +206,20 @@ public class CreateBusinessCardFragment extends Fragment {
         View focusView = null;
 
         BusinessCard card = new BusinessCard();
+
+        // check for empty fields
+        if (TextUtils.isEmpty(email)) {
+            emailView.setError(getString(R.string.error_field_required));
+            focusView = emailView;
+            cancel = true;
+        }
+
+
+        if (TextUtils.isEmpty(phoneNumber)) {
+            phoneNumberView.setError(getString(R.string.error_field_required));
+            focusView = phoneNumberView;
+            cancel = true;
+        }
 
         // Check for a valid email
         if (!TextUtils.isEmpty(email)) {
@@ -314,11 +333,13 @@ public class CreateBusinessCardFragment extends Fragment {
             if (result) {
                 // bc created successfully
                 Log.d(TAG, "Card creation performed successfully");
-                Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
+                // Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
 
+                // Go back to main activity
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                getActivity().setResult(Activity.RESULT_OK, intent);
+                getActivity().finish();
 
             } else {
                 // bc didn't created successfully

@@ -3,20 +3,27 @@ package gr.bcw.business_card_wallet.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import gr.bcw.business_card_wallet.R;
+import gr.bcw.business_card_wallet.activity.MainActivity;
 import gr.bcw.business_card_wallet.adapter.BusinessCardResponseAdapter;
 import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.util.TokenUtils;
@@ -51,15 +59,25 @@ public class SearchBusinessCardFragment extends Fragment {
     private SearchTask searchTask = null;
 
     // UI references
+    private ActionBar actionBar;
     private View progressView;
     private ListView cardListView;
-    private EditText nameEditText;
-    private ImageButton searchButton;
+    private EditText searchEditText;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.hide();
+
         realm = Realm.getDefaultInstance();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        actionBar.hide();
     }
 
     @Nullable
@@ -71,15 +89,27 @@ public class SearchBusinessCardFragment extends Fragment {
         cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.SEARCH_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
         progressView = rootView.findViewById(R.id.progress);
-        nameEditText = (EditText) rootView.findViewById(R.id.name_editText);
+        searchEditText = (EditText) rootView.findViewById(R.id.search_editText);
 
-        searchButton = (ImageButton) rootView.findViewById(R.id.search_button);
+        searchEditText.setHint(R.string.search_business_card_hint);
+
         ImageButton clearButton = (ImageButton) rootView.findViewById(R.id.clear_button);
+        ImageButton backButton = (ImageButton) rootView.findViewById(R.id.goBack_button);
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        // when search pressed
+        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                attemptSearch();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    attemptSearch();
+
+                    // hide soft keyboard
+                    InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(searchEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -87,11 +117,28 @@ public class SearchBusinessCardFragment extends Fragment {
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                nameEditText.setText("");
+                searchEditText.setText("");
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goBack();
             }
         });
 
         return rootView;
+    }
+
+    private void goBack() {
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        if (cardAdapter.isRefresh()) {
+            getActivity().setResult(Activity.RESULT_OK, intent);
+        }
+        getActivity().finish();
     }
 
     private void attemptSearch() {
@@ -100,18 +147,18 @@ public class SearchBusinessCardFragment extends Fragment {
         }
 
         // reset errors
-        nameEditText.setError(null);
+        searchEditText.setError(null);
 
         // extract values
-        String name = nameEditText.getText().toString();
+        String name = searchEditText.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid First Name
         if (TextUtils.isEmpty(name)) {
-            nameEditText.setError(getString(R.string.error_field_required));
-            focusView = nameEditText;
+            searchEditText.setError(getString(R.string.error_field_required));
+            focusView = searchEditText;
             cancel = true;
         }
 
@@ -122,12 +169,14 @@ public class SearchBusinessCardFragment extends Fragment {
 
         firstName = results[0];
 
-        if (results.length > 1) {
+        if (results.length > 2) {
+            searchEditText.setError(getString(R.string.error_invalid_name));
+            focusView = searchEditText;
+            cancel = true;
+        } else if (results.length > 1) {
             lastName = results[1];
         } else {
-            nameEditText.setError(getString(R.string.error_invalid_name));
-            focusView = nameEditText;
-            cancel = true;
+            lastName = results[0];
         }
 
         if (cancel) {
@@ -223,24 +272,25 @@ public class SearchBusinessCardFragment extends Fragment {
             searchTask = null;
             showProgress(false);
 
+            cardAdapter.clear();
+
             if (cards != null) {
 
-                cardAdapter.clear();
                 cardAdapter.setCurrentWalletCardsIdSet(currentWalletCardsIdSet);
 
                 for (BusinessCardResponse c : cards) {
                     cardAdapter.add(c);
                 }
 
-                cardAdapter.notifyDataSetChanged();
-
                 // hide soft keyboard
                 InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(searchButton.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                inputManager.hideSoftInputFromWindow(searchEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
             } else {
                 Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
             }
+
+            cardAdapter.notifyDataSetChanged();
 
         }
 

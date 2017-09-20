@@ -2,40 +2,40 @@
     <string name="app_name">Business-Card-Wallet</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_login">LOGIN</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_profession">Profession</string>
-    <string name="prompt_company">Company</string>
-    <string name="prompt_password">Password</string>
-    <string name="prompt_password_again">Password (Again)</string>
-    <string name="prompt_firstName">First Name</string>
-    <string name="prompt_lastName">Last Name</string>
-    <string name="prompt_user_name">User Full Name</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_settings">settings</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_incorrect_email_or_password">Incorrect email or password</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="prompt_login">Είσοδος</string>
+    <string name="prompt_email">Ηλεκτρονική Διεύθυνση (e-mail)</string>
+    <string name="prompt_profession">Επάγγελμα/Ιδιότητα</string>
+    <string name="prompt_company">Επιχείρηση/Οργανισμός</string>
+    <string name="prompt_password">Κωδικός</string>
+    <string name="prompt_password_again">Κωδικός (ξανά)</string>
+    <string name="prompt_firstName">Όνομα</string>
+    <string name="prompt_lastName">Επίθετο</string>
+    <string name="prompt_user_name">Ονοματεπώνυμο</string>
+    <string name="action_sign_in">Είσοδος ή Δημιουργία Λογαριασμού</string>
+    <string name="action_settings">Ρυθμίσεις</string>
+    <string name="error_invalid_email">Μη Αποδεκτή Ηλεκτρονική Διεύθυνση</string>
+    <string name="error_invalid_password">Ο Κωδικός είναι πολύ μικρός</string>
+    <string name="error_incorrect_password">Λανθασμένος Κωδικός</string>
+    <string name="error_incorrect_email_or_password">Λανθασμένη Ηλ. Διεύθυνση ή Κωδικός</string>
+    <string name="error_field_required">Το πεδίο είναι υποχρεωτικό</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
-    <string name="error_passwords_not_match">Passwords Not Match</string>
-    <string name="error_invalid_card_id">Card ID Should be a Decimal Number</string>
-    <string name="error_invalid_name">Full Name Needed</string>
+    <string name="error_passwords_not_match">Οι κωδικοί δεν ταιριάζουν</string>
+    <string name="error_invalid_card_id">Το id της κάρτας πρέπει να είναι ακέραιος αριθμός</string>
+    <string name="error_invalid_name">Μη Αποδεκτό Ονοματεπώνυμο</string>
 
     <!-- Actions -->
-    <string name="action_sign_in_short">SIGN IN</string>
-    <string name="action_sign_up_short">SIGN UP</string>
+    <string name="action_sign_in_short">ΕΙΣΟΔΟΣ</string>
+    <string name="action_sign_up_short">ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ</string>
 
     <!-- Action Bar -->
-    <string name="action_bar_default_title">Title</string>
-    <string name="action_bar_main_title">Wallet</string>
-    <string name="action_bar_login_title">Login</string>
-    <string name="action_bar_sign_up_title">Sign Up</string>
-    <string name="action_bar_settings_title">Settings</string>
-    <string name="action_bar_update_user_title">Update User</string>
-    <string name="action_bar_create_business_card_title">Create Business Card</string>
-    <string name="action_bar_search_business_card_title">Search Business Card</string>
+    <string name="action_bar_default_title">Τίτλος</string>
+    <string name="action_bar_main_title">Πορτοφόλι Καρτών</string>
+    <string name="action_bar_login_title">Είσοδος</string>
+    <string name="action_bar_sign_up_title">Δημιουργία Λογαριασμού</string>
+    <string name="action_bar_settings_title">Ρυθμίσεις</string>
+    <string name="action_bar_update_user_title">Αλλαγή Στοιχείων Χρήστη</string>
+    <string name="action_bar_create_business_card_title">Δημιουργία Επαγγελματικής Κάρτας</string>
+    <string name="action_bar_search_business_card_title">Αναζήτηση Επαγγελματικής Κάρτας</string>
 
     <!-- Business Card -->
     <string name="text_view_bc_name">John Smith</string>
@@ -44,35 +44,37 @@
     <string name="text_view_bc_profession">Manager</string>
     <string name="text_view_bc_website">www.johnsmith.com</string>
 
-    <string name="text_view_bc_phone_number">Phone Number</string>
-    <string name="text_view_bc_address">Address</string>
-    <string name="text_view_bc_website_hint">Website</string>
-    <string name="text_view_bc_id">Card ID</string>
+    <string name="text_view_bc_phone_number">Αριθμός Τηλεφώνου</string>
+    <string name="text_view_bc_address">Διεύθυνση</string>
+    <string name="text_view_bc_website_hint">Ιστοσελίδα</string>
+    <string name="text_view_bc_id">ID Κάρτας:</string>
 
     <!-- Preferences -->
-    <string name="pref_auto_login">Auto Login</string>
-    <string name="pref_auto_business_card_public">Public Business Card</string>
-    <string name="pref_category_login_settings">Authentication</string>
-    <string name="pref_category_business_card_settings">Business Card</string>
+    <string name="pref_auto_login">Αυτόματη Είσοδος</string>
+    <string name="pref_auto_business_card_public">Δημόσια Επαγγελματική Κάρτα</string>
+    <string name="pref_category_login_settings">Αυθεντικοποίηση</string>
+    <string name="pref_category_business_card_settings">Επαγγελματική Κάρτα</string>
 
     <!-- Settings -->
-    <string name="option_logout">Logout</string>
-    <string name="option_update_user">Update User</string>
-    <string name="option_user_related_editText_text">Account Management</string>
+    <string name="option_logout">ΑΠΟΣΥΝΔΕΣΗ</string>
+    <string name="option_update_user">ΑΛΛΑΓΗ ΣΤΟΙΧΕΙΩΝ ΧΡΗΣΤΗ</string>
+    <string name="option_user_related_editText_text">Διαχείριση Λογαριασμού</string>
 
     <!-- Default Button Values -->
     <string name="button_action_text">Button Action</string>
 
     <!-- Button Values -->
-    <string name="button_action_save">Save</string>
-    <string name="button_action_create">Create</string>
-
-    <!-- Unique Tags -->
-    <string name="my_business_card_fragment_tag">myBusinessCardFragmentTag</string>
+    <string name="button_action_save">ΑΠΟΘΗΚΕΥΣΗ</string>
+    <string name="button_action_create">ΔΗΜΙΟΥΡΓΙΑ</string>
 
     <!-- hints -->
     <string name="search_hint">Αναζήτηση</string>
     <string name="search_profession_hint">Αναζήτηση Επαγγέλματος/Ιδιότητας</string>
     <string name="search_company_hint">Αναζήτηση Επιχείρησης/Οργανισμού</string>
+    <string name="search_business_card_hint">Ονοματεπώνυμο Χρήστη</string>
+
+    <!-- Pager tab titles -->
+    <string name="pager_tab_my_cards">Οι Κάρτες Μου</string>
+    <string name="pager_tab_added_cards">Κάρτες Τρίτων</string>
 
 </resources>

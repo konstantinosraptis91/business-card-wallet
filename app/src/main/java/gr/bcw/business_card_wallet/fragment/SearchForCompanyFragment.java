@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,6 +100,8 @@ public class SearchForCompanyFragment extends Fragment implements View.OnClickLi
         progressView = fragmentView.findViewById(R.id.progress);
 
         ImageButton clearBtn = (ImageButton) fragmentView.findViewById(R.id.clear_button);
+        ImageButton backBtn = (ImageButton) fragmentView.findViewById(R.id.goBack_button);
+
         searchEditText = (EditText) fragmentView.findViewById(R.id.search_editText);
 
         // change search editText hint
@@ -128,7 +131,18 @@ public class SearchForCompanyFragment extends Fragment implements View.OnClickLi
             }
         });
 
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               goBack();
+            }
+        });
+
         return fragmentView;
+    }
+
+    private void goBack() {
+        getActivity().onBackPressed();
     }
 
     private void attemptSearchForProfessions() {
@@ -137,7 +151,7 @@ public class SearchForCompanyFragment extends Fragment implements View.OnClickLi
         }
 
         // Reset errors
-
+        searchEditText.setError(null);
 
         // extract values from editTexts and store them at the time of creation attempt
         String compName = searchEditText.getText().toString();
@@ -147,7 +161,11 @@ public class SearchForCompanyFragment extends Fragment implements View.OnClickLi
         View focusView = null;
 
         // validation check here
-
+        if (TextUtils.isEmpty(compName)) {
+            searchEditText.setError(getString(R.string.error_field_required));
+            focusView = searchEditText;
+            cancel = true;
+        }
 
         if (cancel) {
             // There was an error; don't attempt update and focus the first

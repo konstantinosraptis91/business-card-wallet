@@ -1,10 +1,6 @@
 package gr.bcw.business_card_wallet.fragment;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,9 +40,6 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
 
     private Realm realm;
 
-    private View progressView;
-    private View getBusinessCardsByIdView;
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
@@ -64,8 +58,8 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.MY_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
-        progressView = rootView.findViewById(R.id.progress);
-        getBusinessCardsByIdView = rootView.findViewById(R.id.businessCardsListView);
+//        View progressView = rootView.findViewById(R.id.progress);
+//        View getBusinessCardsByIdView = rootView.findViewById(R.id.businessCardsListView);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -81,6 +75,8 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
             return;
         }
 
+        showProgress(true);
+
         long id = UserUtils.getID(getActivity());
         String token = TokenUtils.getToken(getActivity());
 
@@ -88,40 +84,8 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         getBusinessCardsByUserIdTask.execute(new BusinessCardWebServiceImpl());
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            getBusinessCardsByIdView.setVisibility(show ? View.GONE : View.VISIBLE);
-            getBusinessCardsByIdView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    getBusinessCardsByIdView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            getBusinessCardsByIdView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+    private void showProgress(boolean progress) {
+        mSwipeRefreshLayout.setRefreshing(progress);
     }
 
     @Override
@@ -135,7 +99,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
 
         private long id;
         private String token;
-        private String message = "";
+        private WebServiceException webServiceException;
 
         public GetBusinessCardsByUserIdTask(long id, String token) {
             this.id = id;
@@ -150,7 +114,7 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
             try {
                 cardList = service.findByUserIdV2(id, token);
             } catch (WebServiceException ex) {
-                message = ex.getMessage();
+                webServiceException = ex;
             }
 
             return cardList;
@@ -160,7 +124,6 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         protected void onPostExecute(List<BusinessCardResponse> cardList) {
             getBusinessCardsByUserIdTask = null;
             showProgress(false);
-            mSwipeRefreshLayout.setRefreshing(false);
 
             if (cardList != null) {
                 // user updated successfully
@@ -172,8 +135,11 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
                 }
 
             } else {
-                // user didn't updated successfully
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                if (webServiceException.getHttpCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+                    Log.d(TAG, webServiceException.getMessage());
+                } else {
+                    Toast.makeText(getActivity(), webServiceException.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         }
 
@@ -181,7 +147,6 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         protected void onCancelled() {
             getBusinessCardsByUserIdTask = null;
             showProgress(false);
-            mSwipeRefreshLayout.setRefreshing(false);
         }
 
     }

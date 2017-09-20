@@ -2,33 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_weight="1"
-        android:visibility="gone" />
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="60dp">
 
         <EditText
             android:id="@+id/search_editText"
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@android:color/transparent"
             android:gravity="center"
             android:hint="@string/search_hint"
-            android:padding="10dp"
-            android:textSize="16sp"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:background="@android:color/transparent"/>
+            android:padding="10dp"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/goBack_button"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_arrow_back_black_24dp"
+            android:tint="@color/colorSecondaryText" />
 
         <ImageButton
             android:id="@+id/clear_button"
@@ -44,14 +44,23 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/colorAccent"/>
+        android:background="@color/colorAccent" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:padding="16dp"/>
 
     <ListView
         android:id="@+id/entityListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
         android:divider="@android:color/transparent"
-        android:dividerHeight="4dp"
-        android:layout_marginTop="4dp"/>
+        android:dividerHeight="4dp" />
 
 </LinearLayout>

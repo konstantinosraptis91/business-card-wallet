@@ -40,6 +40,7 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
     private Context context;
     private Set<Long> currentWalletCardsIdSet;
     private final CardType type;
+    private boolean refresh = false;
 
     public enum CardType {
         MY_BUSINESS_CARD, ADDED_BUSINESS_CARD, SEARCH_BUSINESS_CARD
@@ -53,6 +54,14 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
 
     public void setCurrentWalletCardsIdSet(Set<Long> currentWalletCardsIdSet) {
         this.currentWalletCardsIdSet = currentWalletCardsIdSet;
+    }
+
+    public boolean isRefresh() {
+        return refresh;
+    }
+
+    public void setRefresh(boolean refresh) {
+        this.refresh = refresh;
     }
 
     /**
@@ -300,6 +309,11 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
 
             if (card != null) {
                 BusinessCardResponseAdapter.this.remove(BusinessCardResponseAdapter.this.getItem(position));
+
+                // by setting this to true we want to say that something need to be refreshed
+                // main purpose is added business card listView refresh
+                refresh = true;
+
                 Log.i(TAG, "added");
             } else {
                 // wallet entry wasn't saved successfully

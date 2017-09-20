@@ -35,7 +35,7 @@ import io.realm.Realm;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    public static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int REQUEST_EXIT = 400;
     public static final int RESULT_OK = 200;
@@ -256,8 +256,6 @@ public class LoginActivity extends AppCompatActivity {
                 UserUtils.saveID(LoginActivity.this, theUser.getId());
 
                 // Check if user info are stored in local realm db. if not store them
-                Realm.init(LoginActivity.this);
-                Realm realm = Realm.getDefaultInstance();
                 User dbUser = realm.where(User.class).equalTo("id", theUser.getId()).findFirst();
 
                 // if database user null, make a call to server in order to get user info
@@ -334,6 +332,19 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mEmailView.setText("");
+        mPasswordView.setText("");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 
 }

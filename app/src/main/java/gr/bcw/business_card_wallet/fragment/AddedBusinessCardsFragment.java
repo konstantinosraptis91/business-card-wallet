@@ -1,11 +1,7 @@
 package gr.bcw.business_card_wallet.fragment;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +49,6 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
     private Realm realm;
 
-    private View progressView;
-    private View getWalletView;
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private LinearLayout addCardByIdLayout;
@@ -77,8 +71,8 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.ADDED_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
-        progressView = rootView.findViewById(R.id.progress);
-        getWalletView = rootView.findViewById(R.id.businessCardsListView);
+//        View progressView = rootView.findViewById(R.id.progress);
+//        View getWalletView = rootView.findViewById(R.id.businessCardsListView);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -134,7 +128,13 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         View focusView = null;
 
         // check for a valid card id (should be a decimal number)
-        if (!TextUtils.isEmpty(cardId) && !isCardIdValid(cardId)) {
+        if (TextUtils.isEmpty(cardId)) {
+            cardIdEditText.setError(getString(R.string.error_field_required));
+            focusView = cardIdEditText;
+            cancel = true;
+        }
+
+        if (!isCardIdValid(cardId)) {
             cardIdEditText.setError(getString(R.string.error_invalid_card_id));
             focusView = cardIdEditText;
             cancel = true;
@@ -153,6 +153,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
             entry.setBusinessCardId(Long.parseLong(cardId));
 
             showProgress(true);
+
             saveWalletEntryTask = new SaveWalletEntryTask(entry, token);
             saveWalletEntryTask.execute(new WalletEntryWebServiceImpl());
         }
@@ -164,6 +165,8 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
             return;
         }
 
+        showProgress(true);
+
         long id = UserUtils.getID(getActivity());
         String token = TokenUtils.getToken(getActivity());
 
@@ -171,40 +174,8 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         getWalletTask.execute(new WalletEntryWebServiceImpl());
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            getWalletView.setVisibility(show ? View.GONE : View.VISIBLE);
-            getWalletView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    getWalletView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            getWalletView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+    private void showProgress(boolean progress) {
+        mSwipeRefreshLayout.setRefreshing(progress);
     }
 
     @Override
@@ -273,7 +244,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
 
         private long id;
         private String token;
-        private String message = "";
+        private WebServiceException webServiceException;
 
         public GetWalletTask(long id, String token) {
             this.id = id;
@@ -288,7 +259,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
             try {
                 cardList = service.getWallet(id, token);
             } catch (WebServiceException ex) {
-                message = ex.getMessage();
+                this.webServiceException = ex;
             }
 
             return cardList;
@@ -298,7 +269,6 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         protected void onPostExecute(List<BusinessCardResponse> cardList) {
             getWalletTask = null;
             showProgress(false);
-            mSwipeRefreshLayout.setRefreshing(false);
 
             if (cardList != null) {
                 // user updated successfully
@@ -310,8 +280,11 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
                 }
 
             } else {
-                // user didn't updated successfully
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                if (webServiceException.getHttpCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+                    Log.d(TAG, webServiceException.getMessage());
+                } else {
+                    Toast.makeText(getActivity(), webServiceException.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         }
 
@@ -319,7 +292,6 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
         protected void onCancelled() {
             getWalletTask = null;
             showProgress(false);
-            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

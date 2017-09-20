@@ -69,16 +69,6 @@ public class SignUpActivity extends AppCompatActivity {
         mFirstNameView = (EditText) findViewById(R.id.firstName_signUp);
         mLastNameView = (EditText) findViewById(R.id.lastName_signUp);
         mPasswordView = (EditText) findViewById(R.id.password_signUp);
-//        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-//                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-//                    attemptSignUp();
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
 
         Button signUpButton = (Button) findViewById(R.id.sign_up_button);
         signUpButton.setOnClickListener(new View.OnClickListener() {
@@ -273,6 +263,12 @@ public class SignUpActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 
 }

@@ -42,14 +42,19 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    public static final int BUSINESS_CARD_ACTIVITY_2_RESULT_CODE = 1212;
+    public static final int BUSINESS_CARD_ACTIVITY_RESULT_CODE = 1111;
+
     private Realm realm;
     private ViewPager viewPager;
     private BusinessCardPagerAdapter pagerAdapter;
     private FloatingActionButton fab, fabAdd, fabSearch;
     private Animation fabOpen, fabClose, rotateForward, rotateBackward;
     private boolean isFabOpen = false;
-
     private Context context;
+
+    private AddedBusinessCardsFragment addedBusinessCardsFragment = null;
+    private MyBusinessCardsFragment myBusinessCardsFragment = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -130,15 +135,8 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (currentPage) {
                     case 0: // here fab event when click and MyBusinessCardsFragment is visible (position 0)
-//                        Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
-//                        Bundle b = new Bundle();
-//                        b.putString(BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getType(),
-//                                BusinessCardActivity.BusinessCardFragmentType.CREATE_BC.getValue());
-//                        intent.putExtras(b);
-//                        startActivity(intent);
-
                         Intent createCardIntent = new Intent(MainActivity.this, BusinessCardActivity2.class);
-                        startActivity(createCardIntent);
+                        startActivityForResult(createCardIntent, BUSINESS_CARD_ACTIVITY_2_RESULT_CODE);
                         break;
                     case 1: // here fab event when click and AddedBusinessCardsFragment is visible (position 1)
                         animateFab();
@@ -167,12 +165,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 animateFab();
 
-                Intent intent = new Intent(MainActivity.this, BusinessCardActivity.class);
+                Intent searchCardIntent = new Intent(MainActivity.this, BusinessCardActivity.class);
                 Bundle b = new Bundle();
                 b.putString(BusinessCardActivity.BusinessCardFragmentType.SEARCH_BC.getType(),
                         BusinessCardActivity.BusinessCardFragmentType.SEARCH_BC.getValue());
-                intent.putExtras(b);
-                startActivity(intent);
+                searchCardIntent.putExtras(b);
+                startActivityForResult(searchCardIntent, BUSINESS_CARD_ACTIVITY_RESULT_CODE);
             }
         });
 
@@ -196,8 +194,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         User theUser = new UserStorageHandler().findUserById(realm, id);
+        // user info view
         mainInfoView.setText(User.printUser(theUser));
         context = MainActivity.this;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.i(TAG, "onActivityResult()");
+
+        if (requestCode == BUSINESS_CARD_ACTIVITY_2_RESULT_CODE) {
+            if (resultCode == RESULT_OK) {
+                refreshMyBusinessCards();
+            }
+        } else if (requestCode == BUSINESS_CARD_ACTIVITY_RESULT_CODE) {
+            if (resultCode == RESULT_OK) {
+                refreshAddedBusinessCards();
+            }
+        }
+
     }
 
     private void animateFab() {
@@ -222,10 +239,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Adapter was static class
-    public static class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {
+    public class BusinessCardPagerAdapter extends FragmentStatePagerAdapter {
 
         final int PAGE_COUNT = 2;
-        private String tabTitles[] = new String[]{"My Business Cards", "Added Business Cards"};
+        // private String tabTitles[] = new String[]{"My Business Cards", "Added Business Cards"};
+        private String tabTitles[] = new String[] {getResources().getString(R.string.pager_tab_my_cards), getResources().getString(R.string.pager_tab_added_cards)};
 
         public BusinessCardPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -238,10 +256,18 @@ public class MainActivity extends AppCompatActivity {
 
             switch (position) {
                 case 0:
-                    fragment = new MyBusinessCardsFragment();
+                    if (myBusinessCardsFragment == null) {
+                        myBusinessCardsFragment = new MyBusinessCardsFragment();
+                        Log.d(TAG, "myBusinessCardsFragment instantiated");
+                    }
+                    fragment = myBusinessCardsFragment;
                     break;
                 case 1:
-                    fragment = new AddedBusinessCardsFragment();
+                    if (addedBusinessCardsFragment == null) {
+                        addedBusinessCardsFragment = new AddedBusinessCardsFragment();
+                        Log.d(TAG, "addedBusinessCardsFragment instantiated");
+                    }
+                    fragment = addedBusinessCardsFragment;
                     break;
                 default:
                     fragment = null;
@@ -294,4 +320,19 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         realm.close();
     }
+
+    public void refreshAddedBusinessCards() {
+        if (addedBusinessCardsFragment != null) {
+            Log.d(TAG, "addedBusinessCardsFragment.attemptGetWallet()");
+            addedBusinessCardsFragment.onRefresh();
+        }
+    }
+
+    public void refreshMyBusinessCards() {
+        if (myBusinessCardsFragment != null) {
+            Log.d(TAG, "myBusinessCardsFragment.attemptGetBusinessCardsByUserId()");
+            myBusinessCardsFragment.onRefresh();
+        }
+    }
+
 }
