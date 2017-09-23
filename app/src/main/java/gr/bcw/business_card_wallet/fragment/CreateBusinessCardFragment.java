@@ -72,7 +72,7 @@ public class CreateBusinessCardFragment extends Fragment {
 
         actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayOptions(android.app.ActionBar.DISPLAY_SHOW_CUSTOM);
-        actionBar.setCustomView(R.layout.action_bar_custom);
+        actionBar.setCustomView(R.layout.action_bar_custom_2);
 
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_create_business_card_title);
@@ -92,7 +92,7 @@ public class CreateBusinessCardFragment extends Fragment {
 
         actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayOptions(android.app.ActionBar.DISPLAY_SHOW_CUSTOM);
-        actionBar.setCustomView(R.layout.action_bar_custom);
+        actionBar.setCustomView(R.layout.action_bar_custom_2);
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
         activityTitle.setText(R.string.action_bar_create_business_card_title);
 

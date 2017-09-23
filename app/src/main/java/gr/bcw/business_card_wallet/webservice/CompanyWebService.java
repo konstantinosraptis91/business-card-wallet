@@ -13,6 +13,6 @@ public interface CompanyWebService extends WebService {
 
     String COMPANY = "company";
 
-    List<Company> findByName(String name) throws WebServiceException;
+    List<Company> searchByName(String name) throws WebServiceException;
 
 }

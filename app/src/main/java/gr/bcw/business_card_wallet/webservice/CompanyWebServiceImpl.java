@@ -22,16 +22,16 @@ public class CompanyWebServiceImpl implements CompanyWebService {
 
     private interface CompanyAPI {
 
-        @GET(COMPANY)
-        Call<List<Company>> findByName(@Query("name") String name);
+        @GET(COMPANY + "/search")
+        Call<List<Company>> searchByName(@Query("name") String name);
 
     }
 
     @Override
-    public List<Company> findByName(String name) throws WebServiceException {
+    public List<Company> searchByName(String name) throws WebServiceException {
         String message;
         List<Company> companyList;
-        Call<List<Company>> findByNameCall = ServiceGenerator.createService(CompanyWebServiceImpl.CompanyAPI.class).findByName(name);
+        Call<List<Company>> findByNameCall = ServiceGenerator.createService(CompanyWebServiceImpl.CompanyAPI.class).searchByName(name);
 
         try {
             Response<List<Company>> response = findByNameCall.execute();
@@ -45,7 +45,7 @@ public class CompanyWebServiceImpl implements CompanyWebService {
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
                         throw new WebServiceException("Unauthorized Access");
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        throw new WebServiceException("User did not found");
+                        throw new WebServiceException("Company did not found");
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new WebServiceException("Server Conflict");
                     case HttpURLConnection.HTTP_NO_CONTENT:

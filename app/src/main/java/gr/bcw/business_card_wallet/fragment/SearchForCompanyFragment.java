@@ -234,7 +234,7 @@ public class SearchForCompanyFragment extends Fragment implements View.OnClickLi
             boolean result = false;
 
             try {
-                companyList = service.findByName(compName);
+                companyList = service.searchByName(compName);
                 result = true;
             } catch (WebServiceException ex) {
                 message = ex.getMessage();

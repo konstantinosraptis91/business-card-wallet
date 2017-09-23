@@ -22,17 +22,17 @@ public class ProfessionWebServiceImpl implements ProfessionWebService {
 
     private interface ProfessionAPI {
 
-        @GET(PROFESSION)
-        Call<List<Profession>> findByName(@Query("name") String name);
+        @GET(PROFESSION + "/search")
+        Call<List<Profession>> searchByName(@Query("name") String name);
 
     }
 
     @Override
-    public List<Profession> findByName(String name) throws WebServiceException {
+    public List<Profession> searchByName(String name) throws WebServiceException {
 
         String message;
         List<Profession> professionList;
-        Call<List<Profession>> findByNameCall = ServiceGenerator.createService(ProfessionWebServiceImpl.ProfessionAPI.class).findByName(name);
+        Call<List<Profession>> findByNameCall = ServiceGenerator.createService(ProfessionWebServiceImpl.ProfessionAPI.class).searchByName(name);
 
         try {
             Response<List<Profession>> response = findByNameCall.execute();
@@ -46,7 +46,7 @@ public class ProfessionWebServiceImpl implements ProfessionWebService {
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
                         throw new WebServiceException("Unauthorized Access");
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        throw new WebServiceException("User did not found");
+                        throw new WebServiceException("Profession did not found");
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new WebServiceException("Server Conflict");
                     case HttpURLConnection.HTTP_NO_CONTENT:

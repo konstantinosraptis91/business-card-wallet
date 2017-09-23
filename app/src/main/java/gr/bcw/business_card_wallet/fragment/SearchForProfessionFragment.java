@@ -235,7 +235,7 @@ public class SearchForProfessionFragment extends Fragment implements View.OnClic
             boolean result = false;
 
             try {
-                professionList = service.findByName(profName);
+                professionList = service.searchByName(profName);
                 result = true;
             } catch (WebServiceException ex) {
                 message = ex.getMessage();

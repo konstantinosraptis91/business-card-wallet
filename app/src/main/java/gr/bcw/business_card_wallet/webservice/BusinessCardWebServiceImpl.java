@@ -114,7 +114,7 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
                         throw new WebServiceException("Unauthorized Access", HttpURLConnection.HTTP_UNAUTHORIZED);
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        throw new WebServiceException("User did not found", HttpURLConnection.HTTP_NOT_FOUND);
+                        throw new WebServiceException("Business Card did not found", HttpURLConnection.HTTP_NOT_FOUND);
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new WebServiceException("Server Conflict", HttpURLConnection.HTTP_CONFLICT);
                     case HttpURLConnection.HTTP_NO_CONTENT:
@@ -156,7 +156,7 @@ public class BusinessCardWebServiceImpl implements BusinessCardWebService {
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
                         throw new WebServiceException("Unauthorized Access");
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        throw new WebServiceException("User did not found");
+                        throw new WebServiceException("Business Cards did not found");
                     case HttpURLConnection.HTTP_CONFLICT:
                         throw new WebServiceException("Server Conflict");
                     case HttpURLConnection.HTTP_NO_CONTENT:
