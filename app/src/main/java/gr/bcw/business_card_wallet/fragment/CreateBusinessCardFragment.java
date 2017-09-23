@@ -50,20 +50,21 @@ public class CreateBusinessCardFragment extends Fragment {
     /**
      * Keep track of the create bc task to ensure we can cancel it if requested.
      */
-    private CreateBusinessCardTask createTask = null;
+    private CreateBusinessCardTask createCardTask = null;
 
+    // DB
     private Realm realm;
 
     // UI references
     private ActionBar actionBar;
-    private EditText emailView;
-    private EditText phoneNumberView;
-    private EditText addressView;
-    private EditText websiteView;
+    private EditText emailEditText;
+    private EditText phoneNumberEditText;
+    private EditText addressEditText;
+    private EditText websiteEditText;
     private EditText professionEditText;
     private EditText companyEditText;
     private View progressView;
-    private View createView;
+    private View createCardView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,10 +123,10 @@ public class CreateBusinessCardFragment extends Fragment {
         // Retrieve current user from realm db
         final User dbUser = new UserStorageHandler().findUserById(realm, UserUtils.getID(getActivity()));
 
-        emailView = (EditText) fragmentView.findViewById(R.id.email_editText);
-        phoneNumberView = (EditText) fragmentView.findViewById(R.id.phoneNumber_editText);
-        addressView = (EditText) fragmentView.findViewById(R.id.address1_editText);
-        websiteView = (EditText) fragmentView.findViewById(R.id.website_editText);
+        emailEditText = (EditText) fragmentView.findViewById(R.id.email_editText);
+        phoneNumberEditText = (EditText) fragmentView.findViewById(R.id.phoneNumber_editText);
+        addressEditText = (EditText) fragmentView.findViewById(R.id.address1_editText);
+        websiteEditText = (EditText) fragmentView.findViewById(R.id.website_editText);
         professionEditText = (EditText) fragmentView.findViewById(R.id.profession_editText);
         companyEditText = (EditText) fragmentView.findViewById(R.id.company_editText);
 
@@ -172,7 +173,7 @@ public class CreateBusinessCardFragment extends Fragment {
         });
 
         progressView = fragmentView.findViewById(R.id.progress);
-        createView = fragmentView.findViewById(R.id.business_card_form);
+        createCardView = fragmentView.findViewById(R.id.business_card_form);
 
         return fragmentView;
     }
@@ -181,56 +182,80 @@ public class CreateBusinessCardFragment extends Fragment {
         return email.contains("@");
     }
 
+    private boolean isPhoneNumberValid(String phoneNumber) {
+        try {
+            Integer.parseInt(phoneNumber);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }
+
     private void attemptCreateBC() {
-        if (createTask != null) {
+        if (createCardTask != null) {
             return;
         }
 
         // Reset errors
-        emailView.setError(null);
-        phoneNumberView.setError(null);
-        addressView.setError(null);
-        websiteView.setError(null);
+        emailEditText.setError(null);
+        phoneNumberEditText.setError(null);
+        addressEditText.setError(null);
+        websiteEditText.setError(null);
         professionEditText.setError(null);
         companyEditText.setError(null);
 
         // extract values from editTexts and store them at the time of creation attempt
-        String email = emailView.getText().toString();
-        String phoneNumber = phoneNumberView.getText().toString();
-        String address = addressView.getText().toString();
-        String website = websiteView.getText().toString();
+        String email = emailEditText.getText().toString();
+        String phoneNumber = phoneNumberEditText.getText().toString();
+        String address = addressEditText.getText().toString();
+        String website = websiteEditText.getText().toString();
         String profession = professionEditText.getText().toString();
         String company = companyEditText.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        BusinessCard card = new BusinessCard();
-
-        // check for empty fields
+        // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            emailView.setError(getString(R.string.error_field_required));
-            focusView = emailView;
+            emailEditText.setError(getString(R.string.error_field_required));
+            focusView = emailEditText;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            emailEditText.setError(getString(R.string.error_invalid_email));
+            focusView = emailEditText;
             cancel = true;
         }
 
+        // Check for a valid profession
+        if (TextUtils.isEmpty(profession)) {
+            professionEditText.setError(getString(R.string.error_field_required));
+            focusView = professionEditText;
+            cancel = true;
+        }
 
+        // Check for a valid company
+        if (TextUtils.isEmpty(company)) {
+            companyEditText.setError(getString(R.string.error_field_required));
+            focusView = companyEditText;
+            cancel = true;
+        }
+
+        // Check for a valid phone number
         if (TextUtils.isEmpty(phoneNumber)) {
-            phoneNumberView.setError(getString(R.string.error_field_required));
-            focusView = phoneNumberView;
+            phoneNumberEditText.setError(getString(R.string.error_field_required));
+            focusView = phoneNumberEditText;
+            cancel = true;
+        } else if (!isPhoneNumberValid(phoneNumber)) {
+            phoneNumberEditText.setError(getString(R.string.error_field_invalid_phone_number));
+            focusView = phoneNumberEditText;
             cancel = true;
         }
 
-        // Check for a valid email
-        if (!TextUtils.isEmpty(email)) {
-
-            if (isEmailValid(email)) {
-                card.setEmail1(email);
-            } else {
-                emailView.setError(getString(R.string.error_invalid_email));
-                focusView = emailView;
-                cancel = true;
-            }
+        // Check for a valid address
+        if (TextUtils.isEmpty(address)) {
+            addressEditText.setError(getString(R.string.error_field_required));
+            focusView = addressEditText;
+            cancel = true;
         }
 
         if (cancel) {
@@ -246,6 +271,8 @@ public class CreateBusinessCardFragment extends Fragment {
             String token = TokenUtils.getToken(getActivity());
 
             // card conf goes here
+            BusinessCard card = new BusinessCard();
+            card.setEmail1(email);
             card.setUserId(id);
             card.setPhoneNumber1(phoneNumber);
             card.setAddress1(address);
@@ -257,8 +284,8 @@ public class CreateBusinessCardFragment extends Fragment {
             cardRequest.setCompanyName(company);
             cardRequest.setProfessionName(profession);
 
-            createTask = new CreateBusinessCardTask(cardRequest, token);
-            createTask.execute(new BusinessCardWebServiceImpl());
+            createCardTask = new CreateBusinessCardTask(cardRequest, token);
+            createCardTask.execute(new BusinessCardWebServiceImpl());
         }
 
     }
@@ -274,12 +301,12 @@ public class CreateBusinessCardFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            createView.setVisibility(show ? View.GONE : View.VISIBLE);
-            createView.animate().setDuration(shortAnimTime).alpha(
+            createCardView.setVisibility(show ? View.GONE : View.VISIBLE);
+            createCardView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    createView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    createCardView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -295,7 +322,7 @@ public class CreateBusinessCardFragment extends Fragment {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            createView.setVisibility(show ? View.GONE : View.VISIBLE);
+            createCardView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -327,13 +354,12 @@ public class CreateBusinessCardFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            createTask = null;
+            createCardTask = null;
             showProgress(false);
 
             if (result) {
                 // bc created successfully
                 Log.d(TAG, "Card creation performed successfully");
-                // Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
 
                 // Go back to main activity
                 Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -343,14 +369,14 @@ public class CreateBusinessCardFragment extends Fragment {
 
             } else {
                 // bc didn't created successfully
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
 
         }
 
         @Override
         protected void onCancelled() {
-            createTask = null;
+            createCardTask = null;
             showProgress(false);
         }
 

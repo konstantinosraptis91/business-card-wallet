@@ -287,7 +287,7 @@ public class SearchBusinessCardFragment extends Fragment {
                 inputManager.hideSoftInputFromWindow(searchEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
             } else {
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
 
             cardAdapter.notifyDataSetChanged();

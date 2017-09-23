@@ -113,7 +113,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/text_view_bc_phone_number"
-                    android:inputType="textEmailAddress"
+                    android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/colorPrimaryText" />
 
@@ -128,7 +128,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/text_view_bc_address"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textPostalAddress"
                     android:maxLines="1"
                     android:textColor="@color/colorPrimaryText" />
 
@@ -143,7 +143,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/text_view_bc_website_hint"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textUri"
                     android:maxLines="1"
                     android:textColor="@color/colorPrimaryText" />
 

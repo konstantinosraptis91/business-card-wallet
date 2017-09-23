@@ -317,7 +317,7 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
                 Log.i(TAG, "added");
             } else {
                 // wallet entry wasn't saved successfully
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
 
         }

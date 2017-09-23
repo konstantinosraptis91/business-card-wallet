@@ -304,7 +304,6 @@ public class UpdateUserFragment extends Fragment {
             if (result) {
                 // user updated successfully
                 Log.d(TAG, "update performed successfully");
-                Toast.makeText(getActivity(), "success", Toast.LENGTH_LONG).show();
 
                 // save new user in realm db
                 new UserStorageHandler().updateUser(realm, id, user.getFirstName(), user.getLastName());
@@ -315,7 +314,7 @@ public class UpdateUserFragment extends Fragment {
 
             } else {
                 // user didn't updated successfully
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
         }
 

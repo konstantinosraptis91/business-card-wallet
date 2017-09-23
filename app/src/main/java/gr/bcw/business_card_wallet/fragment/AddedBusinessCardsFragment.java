@@ -132,9 +132,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
             cardIdEditText.setError(getString(R.string.error_field_required));
             focusView = cardIdEditText;
             cancel = true;
-        }
-
-        if (!isCardIdValid(cardId)) {
+        } else if (!isCardIdValid(cardId)) {
             cardIdEditText.setError(getString(R.string.error_invalid_card_id));
             focusView = cardIdEditText;
             cancel = true;
@@ -227,7 +225,7 @@ public class AddedBusinessCardsFragment extends Fragment implements SwipeRefresh
                 cardAdapter.notifyDataSetChanged();
             } else {
                 // wallet entry wasn't saved successfully
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
 
         }
