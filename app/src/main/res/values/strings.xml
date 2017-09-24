@@ -40,6 +40,7 @@
     <string name="action_bar_update_user_title">Αλλαγή Στοιχείων Χρήστη</string>
     <string name="action_bar_create_business_card_title">Δημιουργία Επαγγελματικής Κάρτας</string>
     <string name="action_bar_search_business_card_title">Αναζήτηση Επαγγελματικής Κάρτας</string>
+    <string name="action_bar_edit_business_card_title">Αλλαγή Στοιχείων Επαγγελματικής Κάρτας</string>
 
     <!-- Business Card -->
     <string name="text_view_bc_name">John Smith</string>

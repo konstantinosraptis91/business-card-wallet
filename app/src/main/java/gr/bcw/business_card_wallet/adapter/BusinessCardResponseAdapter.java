@@ -74,20 +74,24 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        View rowView = inflater.inflate(R.layout.row_business_card, parent, false);
-        CardView cardView = (CardView) rowView.findViewById(R.id.card_view);
+        View fragmentView = inflater.inflate(R.layout.row_business_card, parent, false);
+        CardView cardView = (CardView) fragmentView.findViewById(R.id.card_view);
         // same button for my and added business cards
-        ImageButton deleteBCButton = (ImageButton) rowView.findViewById(R.id.deleteBCButton);
-        ImageButton addToWalletButton = (ImageButton) rowView.findViewById(R.id.saveCardToWalletButton);
+        ImageButton deleteBCButton = (ImageButton) fragmentView.findViewById(R.id.deleteBCButton);
+        ImageButton addToWalletButton = (ImageButton) fragmentView.findViewById(R.id.saveCardToWalletButton);
+        ImageButton editCardButton = (ImageButton) fragmentView.findViewById(R.id.editCardButton);
+
+        // card menu vertical dividers
+        View cardMenuVividerVertical1View = fragmentView.findViewById(R.id.cardMenuVividerVertical1);
 
         final BusinessCardResponse cardResponse = getItem(position);
 
-        final TextView businessCardIdView = (TextView) rowView.findViewById(R.id.info_card_id_text_view);
-        final TextView fullNameView = (TextView) rowView.findViewById(R.id.info_name_text_view);
-        final TextView email1View = (TextView) rowView.findViewById(R.id.info_email_text_view);
-        final TextView websiteView = (TextView) rowView.findViewById(R.id.info_website_text_view);
-        final TextView professionView = (TextView) rowView.findViewById(R.id.info_profession_text_view);
-        final TextView companyView = (TextView) rowView.findViewById(R.id.info_company_text_view);
+        final TextView businessCardIdView = (TextView) fragmentView.findViewById(R.id.info_card_id_text_view);
+        final TextView fullNameView = (TextView) fragmentView.findViewById(R.id.info_name_text_view);
+        final TextView email1View = (TextView) fragmentView.findViewById(R.id.info_email_text_view);
+        final TextView websiteView = (TextView) fragmentView.findViewById(R.id.info_website_text_view);
+        final TextView professionView = (TextView) fragmentView.findViewById(R.id.info_profession_text_view);
+        final TextView companyView = (TextView) fragmentView.findViewById(R.id.info_company_text_view);
 
         businessCardIdView.setText(getContext().getString(R.string.text_view_bc_id) + " " + cardResponse.getBusinessCard().getId());
         fullNameView.setText(cardResponse.getUserFullName());
@@ -110,6 +114,19 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
                         deleteBCTask.execute(new BusinessCardWebServiceImpl());
                     }
                 });
+
+                // show edit business card button
+                editCardButton.setVisibility(View.VISIBLE);
+                // show card menu vertical divider
+                cardMenuVividerVertical1View.setVisibility(View.VISIBLE);
+
+                editCardButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i(TAG, "edit card");
+                    }
+                });
+
                 break;
             case ADDED_BUSINESS_CARD:
                 cardView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorAddedBusinessCard));
@@ -190,7 +207,7 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
             cardView.requestLayout();
         }
 
-        return rowView;
+        return fragmentView;
     }
 
     private class DeleteWalletEntryTask extends AsyncTask<WalletEntryWebService, Void, Boolean> {

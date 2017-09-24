@@ -118,7 +118,7 @@ public class CreateBusinessCardFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.fragment_create_business_card, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_business_card_fields, container, false);
 
         // Retrieve current user from realm db
         final User dbUser = new UserStorageHandler().findUserById(realm, UserUtils.getID(getActivity()));
