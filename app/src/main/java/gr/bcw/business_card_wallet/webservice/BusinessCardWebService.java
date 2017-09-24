@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.model.sender.BusinessCardRequest;
 import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
@@ -17,6 +18,8 @@ public interface BusinessCardWebService extends WebService {
     String BUSINESS_CARD = "businesscard";
 
     BusinessCardRequest createBusinessCardV2(@NotNull BusinessCardRequest request, String token) throws WebServiceException;
+
+    void editBusinessCardById(long id, BusinessCard bc, String token) throws WebServiceException;
 
     List<BusinessCardResponse> findByUserNameV2(String firstName, String lastName) throws WebServiceException;
 

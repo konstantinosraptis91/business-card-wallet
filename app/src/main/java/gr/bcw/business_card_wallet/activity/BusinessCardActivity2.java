@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import gr.bcw.business_card_wallet.R;
-import gr.bcw.business_card_wallet.fragment.CreateBusinessCardFragment;
+import gr.bcw.business_card_wallet.fragment.BusinessCardFieldsFragment;
 
 /**
  * Created by konstantinos on 19/9/2017.
@@ -32,15 +32,16 @@ public class BusinessCardActivity2 extends AppCompatActivity {
             }
 
             // Create a new Fragment to be placed in the activity layout
-            CreateBusinessCardFragment createCardFrag = new CreateBusinessCardFragment();
+            // Card field fragment will be used either for create a new card or update an existing one
+            BusinessCardFieldsFragment fieldsFragment = new BusinessCardFieldsFragment();
 
             // In case this activity was started with special instructions from an
             // Intent, pass the Intent's extras to the fragment as arguments
-            // firstFragment.setArguments(getIntent().getExtras());
+            fieldsFragment.setArguments(getIntent().getExtras());
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, createCardFrag).commit();
+                    .add(R.id.fragment_container, fieldsFragment).commit();
         }
     }
 

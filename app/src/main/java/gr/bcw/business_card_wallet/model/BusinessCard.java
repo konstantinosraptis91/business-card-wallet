@@ -1,5 +1,6 @@
 package gr.bcw.business_card_wallet.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import io.realm.RealmObject;
@@ -9,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by konstantinos on 26/3/2017.
  */
 
-public class BusinessCard extends RealmObject {
+public class BusinessCard extends RealmObject implements Serializable {
 
     @PrimaryKey
     private long id;

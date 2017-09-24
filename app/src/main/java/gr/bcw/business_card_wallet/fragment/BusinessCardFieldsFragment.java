@@ -26,8 +26,10 @@ import android.widget.Toast;
 
 import gr.bcw.business_card_wallet.R;
 import gr.bcw.business_card_wallet.activity.MainActivity;
+import gr.bcw.business_card_wallet.adapter.BusinessCardResponseAdapter;
 import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.User;
+import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.model.sender.BusinessCardRequest;
 import gr.bcw.business_card_wallet.storage.UserStorageHandler;
 import gr.bcw.business_card_wallet.util.TokenUtils;
@@ -43,14 +45,15 @@ import io.realm.Realm;
  * Created by konstantinos on 11/9/2017.
  */
 
-public class CreateBusinessCardFragment extends Fragment {
+public class BusinessCardFieldsFragment extends Fragment {
 
-    public static final String TAG = CreateBusinessCardFragment.class.getSimpleName();
+    public static final String TAG = BusinessCardFieldsFragment.class.getSimpleName();
 
     /**
      * Keep track of the create bc task to ensure we can cancel it if requested.
      */
     private CreateBusinessCardTask createCardTask = null;
+    private EditBusinessCardTask editCardTask = null;
 
     // DB
     private Realm realm;
@@ -66,6 +69,8 @@ public class CreateBusinessCardFragment extends Fragment {
     private View progressView;
     private View createCardView;
 
+    private BusinessCardResponse cardResponseFromExtras;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +80,18 @@ public class CreateBusinessCardFragment extends Fragment {
         actionBar.setCustomView(R.layout.action_bar_custom_2);
 
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
-        activityTitle.setText(R.string.action_bar_create_business_card_title);
+
+        if (getArguments() != null && getArguments().containsKey(BusinessCardResponseAdapter.BUSINESS_CARD_RESPONSE_KEY)) {
+            cardResponseFromExtras = (BusinessCardResponse) getArguments().getSerializable(BusinessCardResponseAdapter.BUSINESS_CARD_RESPONSE_KEY);
+        }
+
+        // Check here if extras got a card response (edit card action) in order to put the appropriate title
+        if (cardResponseFromExtras != null) {
+            activityTitle.setText(R.string.action_bar_edit_business_card_title);
+            activityTitle.setTextSize(15);
+        } else {
+            activityTitle.setText(R.string.action_bar_create_business_card_title);
+        }
 
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -94,7 +110,13 @@ public class CreateBusinessCardFragment extends Fragment {
         actionBar.setDisplayOptions(android.app.ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.action_bar_custom_2);
         TextView activityTitle = (TextView) getActivity().findViewById(R.id.custom_action_bar);
-        activityTitle.setText(R.string.action_bar_create_business_card_title);
+
+        if (cardResponseFromExtras != null) {
+            activityTitle.setText(R.string.action_bar_edit_business_card_title);
+            activityTitle.setTextSize(15);
+        } else {
+            activityTitle.setText(R.string.action_bar_create_business_card_title);
+        }
 
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -162,15 +184,28 @@ public class CreateBusinessCardFragment extends Fragment {
         });
 
         // Change action button text
-        Button createBtn = (Button) fragmentView.findViewById(R.id.button_action);
-        createBtn.setText(R.string.button_action_create);
-
-        createBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                attemptCreateBC();
-            }
-        });
+        Button actionBtn = (Button) fragmentView.findViewById(R.id.button_action);
+        // Edit card here
+        if (cardResponseFromExtras != null) {
+            actionBtn.setText(R.string.button_action_save);
+            setFieldsWithCardResponse(cardResponseFromExtras);
+            actionBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    attemptEditBC();
+                }
+            });
+        }
+        // Create card here
+        else {
+            actionBtn.setText(R.string.button_action_create);
+            actionBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    attemptCreateBC();
+                }
+            });
+        }
 
         progressView = fragmentView.findViewById(R.id.progress);
         createCardView = fragmentView.findViewById(R.id.business_card_form);
@@ -191,18 +226,110 @@ public class CreateBusinessCardFragment extends Fragment {
         }
     }
 
-    private void attemptCreateBC() {
-        if (createCardTask != null) {
-            return;
-        }
-
-        // Reset errors
+    private void resetFieldErrors() {
         emailEditText.setError(null);
         phoneNumberEditText.setError(null);
         addressEditText.setError(null);
         websiteEditText.setError(null);
         professionEditText.setError(null);
         companyEditText.setError(null);
+    }
+
+    private void attemptEditBC() {
+        if (editCardTask != null) {
+            return;
+        }
+
+        // Reset errors
+        resetFieldErrors();
+
+        // extract values from editTexts and store them at the time of edit attempt
+        String email = emailEditText.getText().toString();
+        String phoneNumber = phoneNumberEditText.getText().toString();
+        String address = addressEditText.getText().toString();
+        String website = websiteEditText.getText().toString();
+        String profession = professionEditText.getText().toString();
+        String company = companyEditText.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            emailEditText.setError(getString(R.string.error_field_required));
+            focusView = emailEditText;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            emailEditText.setError(getString(R.string.error_invalid_email));
+            focusView = emailEditText;
+            cancel = true;
+        }
+
+        // Check for a valid profession
+        if (TextUtils.isEmpty(profession)) {
+            professionEditText.setError(getString(R.string.error_field_required));
+            focusView = professionEditText;
+            cancel = true;
+        }
+
+        // Check for a valid company
+        if (TextUtils.isEmpty(company)) {
+            companyEditText.setError(getString(R.string.error_field_required));
+            focusView = companyEditText;
+            cancel = true;
+        }
+
+        // Check for a valid phone number
+        if (TextUtils.isEmpty(phoneNumber)) {
+            phoneNumberEditText.setError(getString(R.string.error_field_required));
+            focusView = phoneNumberEditText;
+            cancel = true;
+        } else if (!isPhoneNumberValid(phoneNumber)) {
+            phoneNumberEditText.setError(getString(R.string.error_field_invalid_phone_number));
+            focusView = phoneNumberEditText;
+            cancel = true;
+        }
+
+        // Check for a valid address
+        if (TextUtils.isEmpty(address)) {
+            addressEditText.setError(getString(R.string.error_field_required));
+            focusView = addressEditText;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt update and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user update attempt.
+            showProgress(true);
+
+            long id = UserUtils.getID(getActivity());
+            String token = TokenUtils.getToken(getActivity());
+
+            // card conf goes here
+            cardResponseFromExtras.getBusinessCard().setEmail1(email);
+            cardResponseFromExtras.getBusinessCard().setUserId(id);
+            cardResponseFromExtras.getBusinessCard().setPhoneNumber1(phoneNumber);
+            cardResponseFromExtras.getBusinessCard().setAddress1(address);
+            cardResponseFromExtras.getBusinessCard().setUniversal(true);
+            cardResponseFromExtras.getBusinessCard().setWebsite(website);
+
+            editCardTask = new EditBusinessCardTask(cardResponseFromExtras.getBusinessCard(), token);
+            editCardTask.execute(new BusinessCardWebServiceImpl());
+        }
+
+    }
+
+    private void attemptCreateBC() {
+        if (createCardTask != null) {
+            return;
+        }
+
+        // Reset errors
+        resetFieldErrors();
 
         // extract values from editTexts and store them at the time of creation attempt
         String email = emailEditText.getText().toString();
@@ -291,6 +418,20 @@ public class CreateBusinessCardFragment extends Fragment {
     }
 
     /**
+     * This method will be used in case of edit bc
+     *
+     * @param cardResponse
+     */
+    private void setFieldsWithCardResponse(BusinessCardResponse cardResponse) {
+        emailEditText.setText(cardResponse.getBusinessCard().getEmail1());
+        professionEditText.setText(cardResponse.getProfession().getName());
+        companyEditText.setText(cardResponse.getCompany().getName());
+        phoneNumberEditText.setText(cardResponse.getBusinessCard().getPhoneNumber1());
+        addressEditText.setText(cardResponse.getBusinessCard().getAddress1());
+        websiteEditText.setText(cardResponse.getBusinessCard().getWebsite());
+    }
+
+    /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -326,6 +467,62 @@ public class CreateBusinessCardFragment extends Fragment {
         }
     }
 
+    private class EditBusinessCardTask extends AsyncTask<BusinessCardWebService, Void, Boolean> {
+
+        private BusinessCard card;
+        private String token;
+        private String message = "";
+
+        public EditBusinessCardTask(BusinessCard card, String token) {
+            this.card = card;
+            this.token = token;
+        }
+
+        @Override
+        protected Boolean doInBackground(BusinessCardWebService... params) {
+            BusinessCardWebService service = params[0];
+            Boolean result = false;
+
+            try {
+                service.editBusinessCardById(card.getId(), card, token);
+                result = true;
+            } catch (WebServiceException ex) {
+                message = ex.getMessage();
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            editCardTask = null;
+            showProgress(false);
+
+            if (result) {
+                // bc created successfully
+                Log.d(TAG, "Card edit performed successfully");
+
+                // Go back to main activity
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                getActivity().setResult(Activity.RESULT_OK, intent);
+                getActivity().finish();
+
+            } else {
+                // bc didn't edited successfully
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            editCardTask = null;
+            showProgress(false);
+        }
+
+    }
+
     private class CreateBusinessCardTask extends AsyncTask<BusinessCardWebService, Void, Boolean> {
 
         private BusinessCardRequest cardRequest;
@@ -343,7 +540,7 @@ public class CreateBusinessCardFragment extends Fragment {
             Boolean result = false;
 
             try {
-                cardRequest = service.createBusinessCardV2(cardRequest,  token);
+                cardRequest = service.createBusinessCardV2(cardRequest, token);
                 result = true;
             } catch (WebServiceException ex) {
                 message = ex.getMessage();

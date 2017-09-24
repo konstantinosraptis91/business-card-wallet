@@ -1,12 +1,13 @@
 package gr.bcw.business_card_wallet.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by konstantinos on 18/9/2017.
  */
 
-public abstract class DBEntity {
+public abstract class DBEntity implements Serializable {
 
     protected long id;
     protected Date lastUpdated;

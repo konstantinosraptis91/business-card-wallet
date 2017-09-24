@@ -58,9 +58,6 @@ public class MyBusinessCardsFragment extends Fragment implements SwipeRefreshLay
         cardAdapter = new BusinessCardResponseAdapter(getActivity(), new ArrayList<BusinessCardResponse>(), BusinessCardResponseAdapter.CardType.MY_BUSINESS_CARD);
         cardListView.setAdapter(cardAdapter);
 
-//        View progressView = rootView.findViewById(R.id.progress);
-//        View getBusinessCardsByIdView = rootView.findViewById(R.id.businessCardsListView);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 

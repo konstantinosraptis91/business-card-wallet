@@ -1,10 +1,13 @@
 package gr.bcw.business_card_wallet.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import gr.bcw.business_card_wallet.R;
+import gr.bcw.business_card_wallet.activity.BusinessCardActivity2;
+import gr.bcw.business_card_wallet.activity.MainActivity;
 import gr.bcw.business_card_wallet.model.WalletEntry;
 import gr.bcw.business_card_wallet.model.retriever.BusinessCardResponse;
 import gr.bcw.business_card_wallet.util.TokenUtils;
@@ -37,6 +42,7 @@ import gr.bcw.business_card_wallet.webservice.exception.WebServiceException;
 public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardResponse> {
 
     public static final String TAG = BusinessCardResponseAdapter.class.getSimpleName();
+    public static final String BUSINESS_CARD_RESPONSE_KEY = "business-card-response";
     private Context context;
     private Set<Long> currentWalletCardsIdSet;
     private final CardType type;
@@ -123,7 +129,13 @@ public class BusinessCardResponseAdapter extends ArrayAdapter<BusinessCardRespon
                 editCardButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.i(TAG, "edit card");
+                        Intent editCardIntent = new Intent(getContext(), BusinessCardActivity2.class);
+                        // add here the card info in order to pass them to the new activity
+                        Bundle b = new Bundle();
+                        b.putSerializable(BUSINESS_CARD_RESPONSE_KEY, cardResponse);
+                        editCardIntent.putExtras(b);
+
+                        ((AppCompatActivity) getContext()).startActivityForResult(editCardIntent, MainActivity.BUSINESS_CARD_ACTIVITY_2_RESULT_CODE);
                     }
                 });
 

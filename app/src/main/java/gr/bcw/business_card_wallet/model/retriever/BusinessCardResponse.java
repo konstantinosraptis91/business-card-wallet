@@ -1,5 +1,7 @@
 package gr.bcw.business_card_wallet.model.retriever;
 
+import java.io.Serializable;
+
 import gr.bcw.business_card_wallet.model.BusinessCard;
 import gr.bcw.business_card_wallet.model.Company;
 import gr.bcw.business_card_wallet.model.Profession;
@@ -9,7 +11,7 @@ import gr.bcw.business_card_wallet.model.Template;
  * Created by konstantinos on 18/9/2017.
  */
 
-public class BusinessCardResponse {
+public class BusinessCardResponse implements Serializable {
 
     private String userFullName;
     private Profession profession;
